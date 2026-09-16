@@ -277,5 +277,23 @@
     "addMore": "Add more...",
     "typeAndPressEnter": "Type and press Enter...",
     "suggestions": "Suggestions:"
+  },
+
+  "imageUpload": {
+    "uploadImage": "Upload Image",
+    "changeImage": "Change Image",
+    "removeImage": "Remove Image",
+    "chooseImage": "Choose Image",
+    "dragAndDrop": "Drag & drop or browse",
+    "fileTooLarge": "File is too large",
+    "unsupportedFormat": "Only JPG, PNG and WebP are supported",
+    "maxSize": "Maximum file size is 5 MB",
+    "uploading": "Uploading...",
+    "uploadFailed": "Failed to upload image. Please try again.",
+    "notAuthenticated": "Please sign in before uploading images.",
+    "projectImage": "Project Image",
+    "projectImageHelper": "Add an optional cover image for your project",
+    "changePhoto": "Change Photo",
+    "removePhoto": "Remove Photo"
   }
 }

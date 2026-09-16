@@ -7,6 +7,8 @@ import { Calendar, Users, Sparkles, ArrowRight } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { formatDate } from '@/lib/utils/format';
 import { getProjectTypeLabel, getWorkStyleLabel } from '@/lib/utils/labels';
+import Image from 'next/image';
+import { ProjectPlaceholder } from '@/components/project/ProjectPlaceholder';
 
 interface ProjectCardProps {
   project: Project;
@@ -33,6 +35,21 @@ export function ProjectCard({ project, hasUser }: ProjectCardProps) {
       className="flex flex-col justify-between h-full group"
     >
       <div>
+        {/* Project Cover Image (16:9) */}
+        <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-3.5 border border-[#E2E8F0]/70 bg-[#FAF9F6]">
+          {project.image_url ? (
+            <Image
+              src={project.image_url}
+              alt={project.name}
+              fill
+              className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+          ) : (
+            <ProjectPlaceholder name={project.name} type={project.project_type} />
+          )}
+        </div>
+
         {/* Header: Project Type & Match Score */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <Badge variant="blue" size="sm">

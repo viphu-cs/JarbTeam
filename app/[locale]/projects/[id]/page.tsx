@@ -10,6 +10,8 @@ import { JoinRequestDialog } from '@/components/project/JoinRequestDialog';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { formatDate } from '@/lib/utils/format';
 import { getProjectTypeLabel, getWorkStyleLabel, getStatusLabel } from '@/lib/utils/labels';
+import Image from 'next/image';
+import { ProjectPlaceholder } from '@/components/project/ProjectPlaceholder';
 import {
   Users,
   Calendar,
@@ -164,6 +166,22 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         <ArrowLeft className="w-3.5 h-3.5" />
         {tDetail('backToExplore')}
       </Link>
+
+      {/* Large Project Cover Image (16:9 / responsive banner) */}
+      <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden border border-[#E2E8F0] shadow-xs bg-[#FAF9F6]">
+        {project.image_url ? (
+          <Image
+            src={project.image_url}
+            alt={project.name}
+            fill
+            priority
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 896px"
+          />
+        ) : (
+          <ProjectPlaceholder name={project.name} type={project.project_type} className="h-full" />
+        )}
+      </div>
 
       {/* Main Project Header Card */}
       <Card className="bg-white border-[#E2E8F0] shadow-xs">

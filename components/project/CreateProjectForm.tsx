@@ -11,6 +11,7 @@ import { ChipInput } from '@/components/profile/ChipInput';
 import { FolderPlus, Users, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getProjectTypeLabel, getWorkStyleLabel } from '@/lib/utils/labels';
+import { ProjectImageUpload } from '@/components/project-image-upload';
 
 interface CreateProjectFormProps {
   availableSkills: Skill[];
@@ -44,6 +45,10 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
   const t = useTranslations('createProject');
   const tCommon = useTranslations('common');
 
+  const [projectId] = useState(() => crypto.randomUUID());
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const [name, setName] = useState('');
   const [projectType, setProjectType] = useState<ProjectType>('Course Project');
   const [description, setDescription] = useState('');
@@ -67,6 +72,8 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
 
     startTransition(async () => {
       const result = await createProjectAction({
+        id: projectId,
+        imageUrl: imageUrl || undefined,
         name,
         projectType,
         description,
@@ -139,6 +146,14 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
           rows={4}
           onChange={(e) => setDescription(e.target.value)}
           required
+          disabled={isPending}
+        />
+
+        <ProjectImageUpload
+          projectId={projectId}
+          imageUrl={imageUrl}
+          onChange={setImageUrl}
+          onUploadingChange={setIsUploadingImage}
           disabled={isPending}
         />
       </Card>
@@ -229,7 +244,7 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
           type="submit"
           variant="primary"
           size="lg"
-          disabled={isPending}
+          disabled={isPending || isUploadingImage}
           className="shadow-sm cursor-pointer"
         >
           {isPending ? t('publishing') : t('submitButton')}

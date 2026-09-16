@@ -56,6 +56,7 @@ export interface Project {
   name: string;
   description: string;
   project_type: ProjectType;
+  image_url?: string;
   deadline?: string;
   duration?: string;
   team_size: number;

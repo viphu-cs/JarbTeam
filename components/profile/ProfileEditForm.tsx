@@ -11,6 +11,7 @@ import { ChipInput } from '@/components/profile/ChipInput';
 import { User, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getProjectTypeLabel, getWorkStyleLabel } from '@/lib/utils/labels';
+import { AvatarUpload } from '@/components/avatar-upload';
 
 interface ProfileEditFormProps {
   initialProfile: Profile;
@@ -72,6 +73,10 @@ export function ProfileEditForm({
   const [preferredTypes, setPreferredTypes] = useState<string[]>(
     initialProfile.preferred_project_types || []
   );
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    initialProfile.avatar_url || null
+  );
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -94,6 +99,7 @@ export function ProfileEditForm({
         university,
         major,
         bio,
+        avatarUrl: avatarUrl !== null ? avatarUrl : '',
         workStyle,
         availability,
         preferredRoles,
@@ -124,6 +130,15 @@ export function ProfileEditForm({
             {t('personalSection')}
           </h2>
         </div>
+
+        <AvatarUpload
+          userId={initialProfile.id}
+          fullName={fullName}
+          avatarUrl={avatarUrl}
+          onChange={setAvatarUrl}
+          onUploadingChange={setIsUploadingAvatar}
+          disabled={isPending}
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -262,7 +277,7 @@ export function ProfileEditForm({
           type="submit"
           variant="primary"
           size="lg"
-          disabled={isPending}
+          disabled={isPending || isUploadingAvatar}
           className="shadow-sm cursor-pointer"
         >
           {isPending ? t('savingButton') : t('saveButton')}

@@ -4,6 +4,8 @@ import { signOutAction } from '@/actions/auth';
 import { Users, PlusCircle, Compass, FolderKanban, Inbox, UserCircle } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import Image from 'next/image';
+import { getInitials } from '@/lib/supabase/storage';
 
 export async function Navbar() {
   const t = await getTranslations('common');
@@ -82,7 +84,23 @@ export async function Navbar() {
                 href="/profile"
                 className="flex items-center gap-2 px-3 py-1.5 bg-[#FAF9F6] border border-[#E2E8F0] hover:border-[#CBD5E1] rounded-2xl text-xs font-medium text-[#0F172A] transition-all"
               >
-                <UserCircle className="w-4 h-4 text-[#7CA5B8]" />
+                {profile?.avatar_url ? (
+                  <div className="relative w-5 h-5 rounded-full overflow-hidden shrink-0 border border-[#BEE3F8]">
+                    <Image
+                      src={profile.avatar_url}
+                      alt="Avatar"
+                      fill
+                      className="object-cover rounded-full"
+                      sizes="20px"
+                    />
+                  </div>
+                ) : profile?.full_name ? (
+                  <div className="w-5 h-5 rounded-full bg-[#D4E6F1] text-[#0B3B4B] flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {getInitials(profile.full_name)}
+                  </div>
+                ) : (
+                  <UserCircle className="w-4 h-4 text-[#7CA5B8]" />
+                )}
                 <span className="max-w-[100px] sm:max-w-[120px] truncate">
                   {profile?.full_name || t('profile')}
                 </span>

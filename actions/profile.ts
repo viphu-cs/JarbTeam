@@ -17,6 +17,7 @@ export interface ProfileFormData {
   university: string;
   major: string;
   bio: string;
+  avatarUrl?: string;
   workStyle: WorkStyle;
   availability: string;
   preferredRoles: string[];
@@ -36,21 +37,40 @@ export async function updateProfileAction(data: ProfileFormData) {
   }
 
   // 1. Update or create basic profile
+  const upsertData: {
+    id: string;
+    email: string;
+    full_name: string;
+    university: string;
+    major: string;
+    bio: string;
+    avatar_url?: string;
+    work_style: WorkStyle;
+    availability: string;
+    preferred_roles: string[];
+    preferred_project_types: string[];
+    updated_at: string;
+  } = {
+    id: user.id,
+    email: user.email || '',
+    full_name: data.fullName,
+    university: data.university,
+    major: data.major,
+    bio: data.bio,
+    work_style: data.workStyle,
+    availability: data.availability,
+    preferred_roles: data.preferredRoles,
+    preferred_project_types: data.preferredProjectTypes,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (data.avatarUrl !== undefined) {
+    upsertData.avatar_url = data.avatarUrl;
+  }
+
   const { error: profileError } = await supabase
     .from('profiles')
-    .upsert({
-      id: user.id,
-      email: user.email || '',
-      full_name: data.fullName,
-      university: data.university,
-      major: data.major,
-      bio: data.bio,
-      work_style: data.workStyle,
-      availability: data.availability,
-      preferred_roles: data.preferredRoles,
-      preferred_project_types: data.preferredProjectTypes,
-      updated_at: new Date().toISOString(),
-    });
+    .upsert(upsertData);
 
   if (profileError) {
     return { error: profileError.message };

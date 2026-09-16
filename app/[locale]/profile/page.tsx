@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { getProjectTypeLabel, getWorkStyleLabel, getStatusLabel } from '@/lib/utils/labels';
+import Image from 'next/image';
+import { getInitials } from '@/lib/supabase/storage';
 
 export default async function ProfilePage() {
   const t = await getTranslations('profile');
@@ -72,8 +74,18 @@ export default async function ProfilePage() {
       <Card className="bg-white border-[#E2E8F0] shadow-[0_4px_20px_rgba(15,23,42,0.02)]">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-3xl bg-[#D4E6F1] border border-[#BEE3F8] flex items-center justify-center text-xl font-bold text-[#0B3B4B] shrink-0">
-              {profile?.full_name?.charAt(0) || 'S'}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-[#D4E6F1] border-2 border-[#BEE3F8] flex items-center justify-center text-xl sm:text-2xl font-bold text-[#0B3B4B] shrink-0 shadow-xs">
+              {profile?.avatar_url ? (
+                <Image
+                  src={profile.avatar_url}
+                  alt={profile?.full_name || 'Avatar'}
+                  fill
+                  className="object-cover rounded-full"
+                  sizes="(max-width: 640px) 80px, 96px"
+                />
+              ) : (
+                <span>{getInitials(profile?.full_name)}</span>
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2">

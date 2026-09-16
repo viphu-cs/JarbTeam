@@ -13,6 +13,7 @@ async function getLocale(): Promise<string> {
 }
 
 export interface ProjectFormData {
+  id?: string;
   name: string;
   projectType: ProjectType;
   description: string;
@@ -20,6 +21,7 @@ export interface ProjectFormData {
   workStyle: WorkStyle;
   duration: string;
   deadline?: string;
+  imageUrl?: string;
   requiredSkills: string[];
   requiredRoles: string[];
 }
@@ -45,20 +47,40 @@ export async function createProjectAction(data: ProjectFormData) {
   const teamSize = Number(data.teamSize) || 4;
 
   // 1. Insert Project
+  const insertPayload: {
+    id?: string;
+    owner_id: string;
+    name: string;
+    description: string;
+    project_type: ProjectType;
+    image_url: string | null;
+    deadline: string | null;
+    duration: string;
+    team_size: number;
+    work_style: WorkStyle;
+    required_roles: string[];
+    status: string;
+  } = {
+    owner_id: user.id,
+    name: data.name.trim(),
+    description: data.description.trim(),
+    project_type: data.projectType,
+    image_url: data.imageUrl || null,
+    deadline: data.deadline ? data.deadline : null,
+    duration: data.duration?.trim() || '',
+    team_size: teamSize,
+    work_style: data.workStyle,
+    required_roles: data.requiredRoles || [],
+    status: 'open',
+  };
+
+  if (data.id) {
+    insertPayload.id = data.id;
+  }
+
   const { data: project, error: projectError } = await supabase
     .from('projects')
-    .insert({
-      owner_id: user.id,
-      name: data.name.trim(),
-      description: data.description.trim(),
-      project_type: data.projectType,
-      deadline: data.deadline ? data.deadline : null,
-      duration: data.duration?.trim() || '',
-      team_size: teamSize,
-      work_style: data.workStyle,
-      required_roles: data.requiredRoles || [],
-      status: 'open',
-    })
+    .insert(insertPayload)
     .select('id')
     .single();
 

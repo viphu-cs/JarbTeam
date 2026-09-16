@@ -277,5 +277,23 @@
     "addMore": "เพิ่มอีก...",
     "typeAndPressEnter": "พิมพ์แล้วกด Enter...",
     "suggestions": "แนะนำ:"
+  },
+
+  "imageUpload": {
+    "uploadImage": "อัปโหลดรูป",
+    "changeImage": "เปลี่ยนรูป",
+    "removeImage": "ลบรูป",
+    "chooseImage": "เลือกรูปภาพ",
+    "dragAndDrop": "ลากและวางหรือคลิกเพื่อเลือกไฟล์",
+    "fileTooLarge": "ไฟล์ใหญ่เกินไป",
+    "unsupportedFormat": "รองรับเฉพาะ JPG, PNG และ WebP",
+    "maxSize": "ขนาดไฟล์สูงสุด 5 MB",
+    "uploading": "กำลังอัปโหลด...",
+    "uploadFailed": "อัปโหลดรูปภาพไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+    "notAuthenticated": "กรุณาเข้าสู่ระบบก่อนอัปโหลดรูปภาพ",
+    "projectImage": "รูปภาพโปรเจกต์",
+    "projectImageHelper": "เพิ่มรูปภาพหน้าปกสำหรับโปรเจกต์ของคุณ (ไม่บังคับ)",
+    "changePhoto": "เปลี่ยนรูปภาพ",
+    "removePhoto": "ลบรูปภาพ"
   }
 }

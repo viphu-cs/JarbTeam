@@ -68,6 +68,7 @@ export default async function MyProjectsPage() {
         name,
         description,
         project_type,
+        image_url,
         owner_id,
         team_size,
         status,
