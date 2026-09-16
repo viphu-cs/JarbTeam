@@ -28,10 +28,12 @@ export async function updateProfileAction(data: ProfileFormData) {
     return { error: 'You must be logged in to update your profile.' };
   }
 
-  // 1. Update basic profile
+  // 1. Update or create basic profile
   const { error: profileError } = await supabase
     .from('profiles')
-    .update({
+    .upsert({
+      id: user.id,
+      email: user.email || '',
       full_name: data.fullName,
       university: data.university,
       major: data.major,
@@ -41,8 +43,7 @@ export async function updateProfileAction(data: ProfileFormData) {
       preferred_roles: data.preferredRoles,
       preferred_project_types: data.preferredProjectTypes,
       updated_at: new Date().toISOString(),
-    })
-    .eq('id', user.id);
+    });
 
   if (profileError) {
     return { error: profileError.message };

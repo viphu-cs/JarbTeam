@@ -3,7 +3,14 @@ import { redirect } from 'next/navigation';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { Profile, Skill, Interest } from '@/types';
 
-export default async function ProfileEditPage() {
+interface ProfileEditPageProps {
+  searchParams: Promise<{ onboarding?: string }>;
+}
+
+export default async function ProfileEditPage({ searchParams }: ProfileEditPageProps) {
+  const { onboarding } = await searchParams;
+  const isOnboarding = onboarding === 'true';
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -18,7 +25,7 @@ export default async function ProfileEditPage() {
     .from('profiles')
     .select('*')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   // Fetch current user's skills
   const { data: userSkillsData } = await supabase
@@ -54,17 +61,46 @@ export default async function ProfileEditPage() {
     .select('id, name')
     .order('name');
 
+  const googleName =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.user_metadata?.preferred_username ||
+    '';
+
   const profile: Profile = {
-    ...(profileData || { id: user.id, full_name: '', email: user.email || '' }),
+    id: user.id,
+    full_name: profileData?.full_name || googleName,
+    email: profileData?.email || user.email || '',
+    university: profileData?.university || '',
+    major: profileData?.major || '',
+    bio: profileData?.bio || '',
+    avatar_url: profileData?.avatar_url || user.user_metadata?.avatar_url || '',
+    work_style: profileData?.work_style || 'Hybrid',
+    availability: profileData?.availability || '',
+    preferred_roles: profileData?.preferred_roles || [],
+    preferred_project_types: profileData?.preferred_project_types || [],
     skills,
     interests,
   };
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      {isOnboarding && (
+        <div className="mb-6 p-4 rounded-2xl bg-[#E8F1F5] border border-[#BEE3F8] text-[#0B3B4B] flex items-start gap-3 shadow-xs">
+          <div className="text-xs space-y-1">
+            <h2 className="font-bold text-sm text-[#0F172A]">
+              Welcome to JarbTeam! 👋
+            </h2>
+            <p className="text-[#334155]">
+              Your Google account is connected. Complete your student profile below so we can start matching you with suitable teammates and university projects.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">
-          Edit Your Student Profile
+          {isOnboarding ? 'Complete Your Student Profile' : 'Edit Your Student Profile'}
         </h1>
         <p className="text-sm text-[#64748B] mt-1">
           Tell other students about your university background, skills, and the kinds of projects you want to build.

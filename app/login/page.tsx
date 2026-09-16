@@ -1,30 +1,104 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signInAction } from '@/actions/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import { Users, ArrowRight } from 'lucide-react';
 
-export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get('error');
+
+  const [formError, setFormError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const errorMessage = formError || urlError;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
+    setFormError(null);
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
       const result = await signInAction(formData);
       if (result?.error) {
-        setError(result.error);
+        setFormError(result.error);
       }
     });
   }
 
+  return (
+    <Card className="bg-white shadow-[0_4px_20px_rgba(15,23,42,0.03)] border-[#E2E8F0]">
+      {errorMessage && (
+        <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-medium text-rose-700">
+          {errorMessage}
+        </div>
+      )}
+
+      {/* Google OAuth Button */}
+      <GoogleAuthButton onError={setFormError} />
+
+      <div className="relative my-5 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-[#E2E8F0]" />
+        </div>
+        <span className="relative bg-white px-3 text-[11px] font-medium uppercase tracking-wider text-[#94A3B8]">
+          or with university email
+        </span>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          label="University Email"
+          name="email"
+          type="email"
+          placeholder="student@university.edu"
+          required
+          disabled={isPending}
+        />
+
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          placeholder="Enter your password"
+          required
+          disabled={isPending}
+        />
+
+        <div className="pt-2">
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+            size="md"
+            disabled={isPending}
+          >
+            {isPending ? 'Signing in...' : 'Sign In'}
+            {!isPending && <ArrowRight className="w-4 h-4 ml-1" />}
+          </Button>
+        </div>
+      </form>
+
+      <div className="mt-6 pt-5 border-t border-[#F1F5F9] text-center text-xs text-[#64748B]">
+        Don&apos;t have an account yet?{' '}
+        <Link
+          href="/signup"
+          className="font-semibold text-[#0B3B4B] hover:underline"
+        >
+          Sign up
+        </Link>
+      </div>
+    </Card>
+  );
+}
+
+export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center py-12 px-4 sm:px-6">
       <div className="max-w-md w-full">
@@ -41,56 +115,9 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <Card className="bg-white shadow-[0_4px_20px_rgba(15,23,42,0.03)] border-[#E2E8F0]">
-          {error && (
-            <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-medium text-rose-700">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="University Email"
-              name="email"
-              type="email"
-              placeholder="student@university.edu"
-              required
-              disabled={isPending}
-            />
-
-            <Input
-              label="Password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              required
-              disabled={isPending}
-            />
-
-            <div className="pt-2">
-              <Button
-                type="submit"
-                variant="primary"
-                fullWidth
-                size="md"
-                disabled={isPending}
-              >
-                {isPending ? 'Signing in...' : 'Sign In'}
-                {!isPending && <ArrowRight className="w-4 h-4 ml-1" />}
-              </Button>
-            </div>
-          </form>
-
-          <div className="mt-6 pt-5 border-t border-[#F1F5F9] text-center text-xs text-[#64748B]">
-            Don&apos;t have an account yet?{' '}
-            <Link
-              href="/signup"
-              className="font-semibold text-[#0B3B4B] hover:underline"
-            >
-              Sign up
-            </Link>
-          </div>
-        </Card>
+        <Suspense fallback={<Card className="p-8 text-center text-xs text-[#64748B]">Loading...</Card>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   );
