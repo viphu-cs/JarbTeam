@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Card } from '@/components/ui/Card';
 import { ChipInput } from '@/components/profile/ChipInput';
 import { FolderPlus, Users, ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { getProjectTypeLabel, getWorkStyleLabel } from '@/lib/utils/labels';
 
 interface CreateProjectFormProps {
   availableSkills: Skill[];
@@ -39,6 +41,9 @@ const COMMON_ROLES = [
 ];
 
 export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
+  const t = useTranslations('createProject');
+  const tCommon = useTranslations('common');
+
   const [name, setName] = useState('');
   const [projectType, setProjectType] = useState<ProjectType>('Course Project');
   const [description, setDescription] = useState('');
@@ -56,13 +61,7 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
     e.preventDefault();
     setError(null);
 
-    if (!name.trim()) {
-      setError('Please provide a project name.');
-      return;
-    }
-
-    if (!description.trim()) {
-      setError('Please provide a project description.');
+    if (!name.trim() || !description.trim()) {
       return;
     }
 
@@ -98,13 +97,13 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
         <div className="flex items-center gap-2 pb-2 border-b border-[#F1F5F9]">
           <FolderPlus className="w-5 h-5 text-[#7CA5B8]" />
           <h2 className="text-base font-semibold text-[#0F172A]">
-            Project Overview
+            {t('overviewTitle')}
           </h2>
         </div>
 
         <Input
-          label="Project Name"
-          placeholder="e.g. AI-Powered Campus Shuttle Tracker"
+          label={t('nameLabel')}
+          placeholder={t('namePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -113,7 +112,7 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
 
         <div>
           <label className="block text-xs font-semibold text-[#0F172A] mb-2 tracking-wide">
-            Project Type
+            {t('typeLabel')}
           </label>
           <div className="flex flex-wrap gap-2">
             {PROJECT_TYPES.map((type) => (
@@ -127,15 +126,15 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
                     : 'bg-white text-[#475569] border-[#E2E8F0] hover:bg-[#FAF9F6]'
                 }`}
               >
-                {type}
+                {getProjectTypeLabel(tCommon, type)}
               </button>
             ))}
           </div>
         </div>
 
         <Textarea
-          label="Description"
-          placeholder="Explain the problem you're solving, project goals, tech expectations, and what teammates will be doing..."
+          label={t('descLabel')}
+          placeholder={t('descPlaceholder')}
           value={description}
           rows={4}
           onChange={(e) => setDescription(e.target.value)}
@@ -149,33 +148,33 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
         <div className="flex items-center gap-2 pb-2 border-b border-[#F1F5F9]">
           <Users className="w-5 h-5 text-[#A78BFA]" />
           <h2 className="text-base font-semibold text-[#0F172A]">
-            Team Logistics & Requirements
+            {t('logisticsTitle')}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Input
-            label="Target Team Size"
+            label={t('teamSizeLabel')}
             type="number"
             min={2}
             max={12}
             value={teamSize}
             onChange={(e) => setTeamSize(parseInt(e.target.value) || 4)}
-            helperText="Total members including you."
+            helperText={t('teamSizeHelper')}
             required
             disabled={isPending}
           />
 
           <Input
-            label="Duration"
-            placeholder="e.g. 1 semester, 48 hours"
+            label={t('durationLabel')}
+            placeholder={t('durationPlaceholder')}
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
             disabled={isPending}
           />
 
           <Input
-            label="Application Deadline"
+            label={t('deadlineLabel')}
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
@@ -185,7 +184,7 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
 
         <div>
           <label className="block text-xs font-semibold text-[#0F172A] mb-2 tracking-wide">
-            Work Style
+            {t('workStyleLabel')}
           </label>
           <div className="grid grid-cols-3 gap-3">
             {WORK_STYLES.map((style) => (
@@ -199,15 +198,15 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
                     : 'bg-white text-[#475569] border-[#E2E8F0] hover:bg-[#FAF9F6]'
                 }`}
               >
-                {style}
+                {getWorkStyleLabel(tCommon, style)}
               </button>
             ))}
           </div>
         </div>
 
         <ChipInput
-          label="Required Skills"
-          helperText="Select or type the skills and technologies your project needs."
+          label={t('skillsLabel')}
+          helperText={t('skillsHelper')}
           values={requiredSkills}
           onChange={setRequiredSkills}
           suggestions={availableSkills.map((s) => s.name)}
@@ -215,8 +214,8 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
         />
 
         <ChipInput
-          label="Required Roles"
-          helperText="Specify the roles you are recruiting for (e.g. Frontend Dev, UI Designer)."
+          label={t('rolesLabel')}
+          helperText={t('rolesHelper')}
           values={requiredRoles}
           onChange={setRequiredRoles}
           suggestions={COMMON_ROLES}
@@ -231,9 +230,9 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
           variant="primary"
           size="lg"
           disabled={isPending}
-          className="shadow-sm"
+          className="shadow-sm cursor-pointer"
         >
-          {isPending ? 'Publishing Project...' : 'Publish Project'}
+          {isPending ? t('publishing') : t('submitButton')}
           {!isPending && <ArrowRight className="w-4 h-4 ml-1" />}
         </Button>
       </div>

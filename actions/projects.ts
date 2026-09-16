@@ -3,7 +3,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { ProjectType, WorkStyle, ProjectStatus } from '@/types';
+
+async function getLocale(): Promise<string> {
+  const cookieStore = await cookies();
+  const loc = cookieStore.get('NEXT_LOCALE')?.value;
+  return loc === 'en' || loc === 'th' ? loc : 'th';
+}
 
 export interface ProjectFormData {
   name: string;
@@ -100,9 +107,10 @@ export async function createProjectAction(data: ProjectFormData) {
     }
   }
 
-  revalidatePath('/projects');
-  revalidatePath('/my-projects');
-  redirect(`/projects/${project.id}`);
+  const locale = await getLocale();
+  revalidatePath(`/${locale}/projects`);
+  revalidatePath(`/${locale}/my-projects`);
+  redirect(`/${locale}/projects/${project.id}`);
 }
 
 export async function updateProjectStatusAction(
@@ -128,9 +136,10 @@ export async function updateProjectStatusAction(
     return { error: error.message };
   }
 
-  revalidatePath(`/projects/${projectId}`);
-  revalidatePath('/projects');
-  revalidatePath('/my-projects');
+  const locale = await getLocale();
+  revalidatePath(`/${locale}/projects/${projectId}`);
+  revalidatePath(`/${locale}/projects`);
+  revalidatePath(`/${locale}/my-projects`);
   return { success: true };
 }
 
@@ -154,7 +163,8 @@ export async function deleteProjectAction(projectId: string) {
     return { error: error.message };
   }
 
-  revalidatePath('/projects');
-  revalidatePath('/my-projects');
-  redirect('/my-projects');
+  const locale = await getLocale();
+  revalidatePath(`/${locale}/projects`);
+  revalidatePath(`/${locale}/my-projects`);
+  redirect(`/${locale}/my-projects`);
 }

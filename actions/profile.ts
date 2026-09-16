@@ -3,7 +3,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { WorkStyle } from '@/types';
+
+async function getLocale(): Promise<string> {
+  const cookieStore = await cookies();
+  const loc = cookieStore.get('NEXT_LOCALE')?.value;
+  return loc === 'en' || loc === 'th' ? loc : 'th';
+}
 
 export interface ProfileFormData {
   fullName: string;
@@ -121,9 +128,10 @@ export async function updateProfileAction(data: ProfileFormData) {
     }
   }
 
-  revalidatePath('/profile');
-  revalidatePath('/profile/edit');
-  revalidatePath('/projects');
+  const locale = await getLocale();
+  revalidatePath(`/${locale}/profile`);
+  revalidatePath(`/${locale}/profile/edit`);
+  revalidatePath(`/${locale}/projects`);
 
-  redirect('/profile');
+  redirect(`/${locale}/profile`);
 }

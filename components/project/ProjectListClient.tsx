@@ -5,6 +5,8 @@ import { Project, ProjectType, WorkStyle, Skill } from '@/types';
 import { ProjectCard } from '@/components/project/ProjectCard';
 import { Button } from '@/components/ui/Button';
 import { Search, Filter, X, Sparkles } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { getProjectTypeLabel, getWorkStyleLabel } from '@/lib/utils/labels';
 
 interface ProjectListClientProps {
   initialProjects: Project[];
@@ -29,6 +31,9 @@ export function ProjectListClient({
   availableSkills,
   hasUser,
 }: ProjectListClientProps) {
+  const tProjects = useTranslations('projects');
+  const tCommon = useTranslations('common');
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<ProjectType | 'All'>('All');
   const [selectedWorkStyle, setSelectedWorkStyle] = useState<WorkStyle | 'All'>('All');
@@ -110,7 +115,7 @@ export function ProjectListClient({
             <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by project name, description, topic..."
+              placeholder={tProjects('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-[#FAF9F6] border border-[#E2E8F0] rounded-xl text-sm text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:border-[#7CA5B8] focus:ring-3 focus:ring-[#D4E6F1] transition-all"
@@ -118,7 +123,7 @@ export function ProjectListClient({
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -135,7 +140,7 @@ export function ProjectListClient({
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-[#3b6475]" />
-              <span>Sort by My Match</span>
+              <span>{tProjects('sortByMatch')}</span>
             </button>
           )}
         </div>
@@ -145,7 +150,7 @@ export function ProjectListClient({
           {/* Project Type Filter */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             <span className="text-[11px] font-semibold text-[#64748B] shrink-0">
-              Type:
+              {tProjects('filterType')}
             </span>
             {PROJECT_TYPES.map((type) => (
               <button
@@ -157,7 +162,7 @@ export function ProjectListClient({
                     : 'bg-white text-[#475569] border-[#E2E8F0] hover:bg-[#FAF9F6]'
                 }`}
               >
-                {type}
+                {type === 'All' ? tProjects('all') : getProjectTypeLabel(tCommon, type)}
               </button>
             ))}
           </div>
@@ -166,7 +171,7 @@ export function ProjectListClient({
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] font-semibold text-[#64748B]">
-                Work Style:
+                {tProjects('filterWorkStyle')}
               </span>
               <select
                 value={selectedWorkStyle}
@@ -177,7 +182,7 @@ export function ProjectListClient({
               >
                 {WORK_STYLES.map((ws) => (
                   <option key={ws} value={ws}>
-                    {ws}
+                    {ws === 'All' ? tProjects('all') : getWorkStyleLabel(tCommon, ws)}
                   </option>
                 ))}
               </select>
@@ -185,14 +190,14 @@ export function ProjectListClient({
 
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] font-semibold text-[#64748B]">
-                Skill:
+                {tProjects('filterSkill')}
               </span>
               <select
                 value={selectedSkill}
                 onChange={(e) => setSelectedSkill(e.target.value)}
                 className="px-2.5 py-1 text-xs bg-white border border-[#E2E8F0] rounded-xl text-[#0F172A] focus:outline-none focus:border-[#7CA5B8] max-w-[160px]"
               >
-                <option value="All">All Skills</option>
+                <option value="All">{tProjects('allSkills')}</option>
                 {availableSkills.map((s) => (
                   <option key={s.id} value={s.name}>
                     {s.name}
@@ -207,7 +212,7 @@ export function ProjectListClient({
                 className="text-xs text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1 ml-auto cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
-                Reset filters
+                {tProjects('resetFilters')}
               </button>
             )}
           </div>
@@ -217,8 +222,7 @@ export function ProjectListClient({
       {/* Results Header */}
       <div className="flex items-center justify-between px-1">
         <p className="text-xs text-[#64748B]">
-          Showing <strong>{filteredProjects.length}</strong> available project
-          {filteredProjects.length === 1 ? '' : 's'}
+          {tProjects('showingCount', { count: filteredProjects.length })}
         </p>
       </div>
 
@@ -239,10 +243,10 @@ export function ProjectListClient({
             <Filter className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-[#0F172A]">
-            No matching projects found
+            {tProjects('noProjectsFound')}
           </h3>
           <p className="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">
-            Try adjusting your search terms or clearing filters to see more projects.
+            {tProjects('noProjectsFoundDesc')}
           </p>
           {hasActiveFilters && (
             <Button
@@ -251,7 +255,7 @@ export function ProjectListClient({
               onClick={resetFilters}
               className="mt-4"
             >
-              Clear all filters
+              {tProjects('clearFilters')}
             </Button>
           )}
         </div>

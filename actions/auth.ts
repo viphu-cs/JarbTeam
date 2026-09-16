@@ -2,10 +2,17 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 
 export interface AuthActionResult {
   error?: string;
   success?: boolean;
+}
+
+async function getLocale(): Promise<string> {
+  const cookieStore = await cookies();
+  const loc = cookieStore.get('NEXT_LOCALE')?.value;
+  return loc === 'en' || loc === 'th' ? loc : 'th';
 }
 
 export async function signUpAction(formData: FormData): Promise<AuthActionResult> {
@@ -44,15 +51,18 @@ export async function signUpAction(formData: FormData): Promise<AuthActionResult
 
   // If user is returned and session exists, ensure profile is initialized
   if (data.user) {
+    const locale = await getLocale();
     await supabase.from('profiles').upsert({
       id: data.user.id,
       full_name: fullName,
       email: email,
+      preferred_language: locale,
       updated_at: new Date().toISOString(),
     });
   }
 
-  redirect('/profile/edit');
+  const locale = await getLocale();
+  redirect(`/${locale}/profile/edit`);
 }
 
 export async function signInAction(formData: FormData): Promise<AuthActionResult> {
@@ -74,11 +84,13 @@ export async function signInAction(formData: FormData): Promise<AuthActionResult
     return { error: error.message };
   }
 
-  redirect('/');
+  const locale = await getLocale();
+  redirect(`/${locale}`);
 }
 
 export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect('/login');
+  const locale = await getLocale();
+  redirect(`/${locale}/login`);
 }

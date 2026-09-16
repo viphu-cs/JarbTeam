@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import {
   acceptJoinRequestAction,
   rejectJoinRequestAction,
@@ -21,6 +21,8 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import { JoinRequest } from '@/types';
+import { useTranslations } from 'next-intl';
+import { getProjectTypeLabel, getStatusLabel } from '@/lib/utils/labels';
 
 interface JoinRequestsManagerProps {
   incomingRequests: JoinRequest[];
@@ -31,6 +33,9 @@ export function JoinRequestsManager({
   incomingRequests,
   sentRequests,
 }: JoinRequestsManagerProps) {
+  const t = useTranslations('joinRequests');
+  const tCommon = useTranslations('common');
+
   const [activeTab, setActiveTab] = useState<'incoming' | 'sent'>('incoming');
   const [isPending, startTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -84,7 +89,7 @@ export function JoinRequestsManager({
           }`}
         >
           <Inbox className="w-4 h-4" />
-          <span>Incoming Requests ({incomingRequests.length})</span>
+          <span>{t('incomingTab', { count: incomingRequests.length })}</span>
         </button>
 
         <button
@@ -96,7 +101,7 @@ export function JoinRequestsManager({
           }`}
         >
           <Send className="w-4 h-4" />
-          <span>My Applications ({sentRequests.length})</span>
+          <span>{t('sentTab', { count: sentRequests.length })}</span>
         </button>
       </div>
 
@@ -120,7 +125,7 @@ export function JoinRequestsManager({
                           {req.profile?.full_name || 'Applicant'}
                         </h3>
                         <Badge variant="lavender" size="sm">
-                          Role: {req.requested_role}
+                          {t('roleLabel', { role: req.requested_role })}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-[#64748B] mt-0.5">
@@ -138,7 +143,7 @@ export function JoinRequestsManager({
 
                   <div className="flex items-center gap-2">
                     <Badge variant="blue" size="sm">
-                      For: {req.project?.name}
+                      {req.project?.name}
                     </Badge>
                     <Badge
                       variant={
@@ -150,7 +155,7 @@ export function JoinRequestsManager({
                       }
                       size="sm"
                     >
-                      {req.status}
+                      {getStatusLabel(tCommon, req.status)}
                     </Badge>
                   </div>
                 </div>
@@ -159,7 +164,7 @@ export function JoinRequestsManager({
                 {req.message && (
                   <div className="p-3 bg-[#FAF9F6] rounded-xl text-xs text-[#334155] border border-[#E2E8F0]/60 leading-relaxed">
                     <strong className="block text-[#64748B] mb-1 font-semibold">
-                      Applicant Message:
+                      {t('applicantMessage')}
                     </strong>
                     {req.message}
                   </div>
@@ -173,24 +178,25 @@ export function JoinRequestsManager({
                       size="sm"
                       onClick={() => handleReject(req.id)}
                       disabled={isPending}
-                      className="text-rose-600 hover:bg-rose-50"
+                      className="text-rose-600 hover:bg-rose-50 cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5 mr-1" />
-                      Decline
+                      {t('decline')}
                     </Button>
                     <Button
                       variant="primary"
                       size="sm"
                       onClick={() => handleAccept(req.id)}
                       disabled={isPending}
+                      className="cursor-pointer"
                     >
                       <Check className="w-3.5 h-3.5 mr-1" />
-                      Accept to Team
+                      {t('accept')}
                     </Button>
                   </div>
                 ) : (
                   <div className="text-right text-xs font-medium text-[#64748B]">
-                    Status: <span className="capitalize">{req.status}</span>
+                    {t('statusLabel', { status: getStatusLabel(tCommon, req.status) })}
                   </div>
                 )}
               </Card>
@@ -201,10 +207,10 @@ export function JoinRequestsManager({
                 <Inbox className="w-6 h-6" />
               </div>
               <h3 className="text-base font-bold text-[#0F172A]">
-                No incoming requests
+                {t('noIncoming')}
               </h3>
               <p className="text-xs text-[#64748B] mt-1">
-                When students apply to join your projects, their applications will show up here.
+                {t('noIncomingDesc')}
               </p>
             </div>
           )}
@@ -227,11 +233,11 @@ export function JoinRequestsManager({
                         {req.project?.name}
                       </h3>
                       <Badge variant="blue" size="sm">
-                        {req.project?.project_type}
+                        {getProjectTypeLabel(tCommon, req.project?.project_type)}
                       </Badge>
                     </div>
                     <p className="text-xs text-[#64748B] mt-1">
-                      Applied as: <strong>{req.requested_role}</strong>
+                      {t('appliedAs', { role: req.requested_role })}
                     </p>
                   </div>
 
@@ -254,12 +260,12 @@ export function JoinRequestsManager({
                       {req.status === 'rejected' && (
                         <XCircle className="w-3 h-3 mr-1" />
                       )}
-                      <span className="capitalize">{req.status}</span>
+                      <span>{getStatusLabel(tCommon, req.status)}</span>
                     </Badge>
 
                     <Link href={`/projects/${req.project_id}`}>
-                      <Button variant="secondary" size="sm">
-                        View Project
+                      <Button variant="secondary" size="sm" className="cursor-pointer">
+                        {t('viewProject')}
                       </Button>
                     </Link>
 
@@ -269,9 +275,9 @@ export function JoinRequestsManager({
                         size="sm"
                         onClick={() => handleCancel(req.id)}
                         disabled={isPending}
-                        className="text-rose-600 hover:bg-rose-50"
+                        className="text-rose-600 hover:bg-rose-50 cursor-pointer"
                       >
-                        Cancel
+                        {t('cancel')}
                       </Button>
                     )}
                   </div>
@@ -290,14 +296,14 @@ export function JoinRequestsManager({
                 <Send className="w-6 h-6" />
               </div>
               <h3 className="text-base font-bold text-[#0F172A]">
-                No submitted applications
+                {t('noSent')}
               </h3>
               <p className="text-xs text-[#64748B] mt-1 mb-4">
-                Explore projects and request to join teams that match your skills.
+                {t('noSentDesc')}
               </p>
               <Link href="/projects">
-                <Button variant="primary" size="sm">
-                  Explore Projects
+                <Button variant="primary" size="sm" className="cursor-pointer">
+                  {t('exploreProjects')}
                 </Button>
               </Link>
             </div>

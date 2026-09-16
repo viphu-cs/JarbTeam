@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -14,15 +14,21 @@ import {
   Sparkles,
   FolderGit2,
 } from 'lucide-react';
+import { getTranslations, getLocale } from 'next-intl/server';
+import { getProjectTypeLabel, getWorkStyleLabel, getStatusLabel } from '@/lib/utils/labels';
 
 export default async function ProfilePage() {
+  const t = await getTranslations('profile');
+  const tCommon = await getTranslations('common');
+  const locale = await getLocale();
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect(`/${locale}/login`);
   }
 
   // 1. Fetch Profile
@@ -72,10 +78,10 @@ export default async function ProfilePage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-[#0F172A]">
-                  {profile?.full_name || 'Student'}
+                  {profile?.full_name || t('studentBadge')}
                 </h1>
                 <Badge variant="blue" size="sm">
-                  Student
+                  {t('studentBadge')}
                 </Badge>
               </div>
               <p className="text-xs text-[#64748B] mt-0.5">{profile?.email}</p>
@@ -100,9 +106,9 @@ export default async function ProfilePage() {
           </div>
 
           <Link href="/profile/edit">
-            <Button variant="secondary" size="sm" className="shadow-xs">
+            <Button variant="secondary" size="sm" className="shadow-xs cursor-pointer">
               <Edit3 className="w-3.5 h-3.5" />
-              Edit Profile
+              {t('editProfile')}
             </Button>
           </Link>
         </div>
@@ -114,7 +120,7 @@ export default async function ProfilePage() {
           </div>
         ) : (
           <div className="mt-5 pt-4 border-t border-[#F1F5F9] text-xs text-[#94A3B8] italic">
-            No bio added yet. Click &quot;Edit Profile&quot; to introduce yourself.
+            {t('noBio')}
           </div>
         )}
 
@@ -123,14 +129,14 @@ export default async function ProfilePage() {
           {profile?.work_style && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-[#FAF9F6] text-[#334155] border border-[#E2E8F0]">
               <Laptop className="w-3.5 h-3.5 text-[#7CA5B8]" />
-              <span>Work Style: <strong>{profile.work_style}</strong></span>
+              <span>{t('workStyle', { style: getWorkStyleLabel(tCommon, profile.work_style) })}</span>
             </div>
           )}
 
           {profile?.availability && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-[#FAF9F6] text-[#334155] border border-[#E2E8F0]">
               <Clock className="w-3.5 h-3.5 text-[#A78BFA]" />
-              <span>Availability: <strong>{profile.availability}</strong></span>
+              <span>{t('availability', { time: profile.availability })}</span>
             </div>
           )}
         </div>
@@ -143,7 +149,7 @@ export default async function ProfilePage() {
           <div>
             <h2 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#7CA5B8]" />
-              Skills
+              {t('skills')}
             </h2>
             <div className="flex flex-wrap gap-1.5 mt-3">
               {skills.length > 0 ? (
@@ -153,7 +159,7 @@ export default async function ProfilePage() {
                   </Badge>
                 ))
               ) : (
-                <p className="text-xs text-[#94A3B8] italic">No skills listed yet.</p>
+                <p className="text-xs text-[#94A3B8] italic">{t('noSkills')}</p>
               )}
             </div>
           </div>
@@ -161,7 +167,7 @@ export default async function ProfilePage() {
           <div className="pt-4 border-t border-[#F1F5F9]">
             <h2 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
               <MapPin className="w-4 h-4 text-[#A78BFA]" />
-              Preferred Roles
+              {t('preferredRoles')}
             </h2>
             <div className="flex flex-wrap gap-1.5 mt-3">
               {profile?.preferred_roles && profile.preferred_roles.length > 0 ? (
@@ -171,7 +177,7 @@ export default async function ProfilePage() {
                   </Badge>
                 ))
               ) : (
-                <p className="text-xs text-[#94A3B8] italic">No preferred roles selected.</p>
+                <p className="text-xs text-[#94A3B8] italic">{t('noRoles')}</p>
               )}
             </div>
           </div>
@@ -182,7 +188,7 @@ export default async function ProfilePage() {
           <div>
             <h2 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#F472B6]" />
-              Interests & Domains
+              {t('interests')}
             </h2>
             <div className="flex flex-wrap gap-1.5 mt-3">
               {interests.length > 0 ? (
@@ -192,7 +198,7 @@ export default async function ProfilePage() {
                   </Badge>
                 ))
               ) : (
-                <p className="text-xs text-[#94A3B8] italic">No interests selected.</p>
+                <p className="text-xs text-[#94A3B8] italic">{t('noInterests')}</p>
               )}
             </div>
           </div>
@@ -200,19 +206,19 @@ export default async function ProfilePage() {
           <div className="pt-4 border-t border-[#F1F5F9]">
             <h2 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
               <FolderGit2 className="w-4 h-4 text-[#FDE047]" />
-              Preferred Project Types
+              {t('preferredTypes')}
             </h2>
             <div className="flex flex-wrap gap-1.5 mt-3">
               {profile?.preferred_project_types &&
               profile.preferred_project_types.length > 0 ? (
                 profile.preferred_project_types.map((type: string) => (
                   <Badge key={type} variant="yellow">
-                    {type}
+                    {getProjectTypeLabel(tCommon, type)}
                   </Badge>
                 ))
               ) : (
                 <p className="text-xs text-[#94A3B8] italic">
-                  No project type preferences chosen.
+                  {t('noTypes')}
                 </p>
               )}
             </div>
@@ -225,11 +231,11 @@ export default async function ProfilePage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
             <FolderGit2 className="w-4 h-4 text-[#7CA5B8]" />
-            My Projects ({ownedProjects?.length || 0})
+            {t('myProjects')} ({ownedProjects?.length || 0})
           </h2>
           <Link href="/projects/create">
-            <Button variant="primary" size="sm">
-              Create Project
+            <Button variant="primary" size="sm" className="cursor-pointer">
+              {t('createProject')}
             </Button>
           </Link>
         </div>
@@ -247,13 +253,13 @@ export default async function ProfilePage() {
                     {p.name}
                   </h3>
                   <Badge variant="blue" size="sm">
-                    {p.project_type}
+                    {getProjectTypeLabel(tCommon, p.project_type)}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-3 mt-2 text-xs text-[#64748B]">
                   <span>Team size: {p.team_size}</span>
                   <span className="capitalize text-emerald-600 font-medium">
-                    {p.status}
+                    {getStatusLabel(tCommon, p.status)}
                   </span>
                 </div>
               </Link>
@@ -261,7 +267,7 @@ export default async function ProfilePage() {
           </div>
         ) : (
           <div className="text-center py-6 text-xs text-[#64748B]">
-            You have not created any projects yet.
+            {t('noProjects')}
           </div>
         )}
       </Card>

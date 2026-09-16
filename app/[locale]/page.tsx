@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/Button';
 import {
@@ -7,10 +7,12 @@ import {
   ArrowRight,
   GraduationCap,
 } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
+  const t = await getTranslations('home');
   const supabase = await createClient();
 
   // Fetch count of open projects
@@ -25,23 +27,22 @@ export default async function HomePage() {
       <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8F1F5] text-[#0B3B4B] border border-[#D4E6F1] text-xs font-semibold">
           <GraduationCap className="w-3.5 h-3.5 text-[#3b6475]" />
-          <span>University Teammate Matching</span>
+          <span>{t('badge')}</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A] leading-[1.15]">
-          Find your next project.
+          {t('titleLine1')}
           <br />
-          <span className="text-[#3b6475]">Build it with the right people.</span>
+          <span className="text-[#3b6475]">{t('titleLine2')}</span>
         </h1>
 
         <p className="text-sm sm:text-base text-[#64748B] max-w-lg mx-auto">
-          Course projects, hackathons, competitions, and startups. Connect with peers based on skills, roles, and interests.
+          {t('subtitle')}
         </p>
 
         {projectCount !== null && projectCount > 0 && (
           <p className="text-xs text-[#64748B] pt-1">
-            <strong>{projectCount}</strong> active student project
-            {projectCount === 1 ? '' : 's'} currently looking for teammates.
+            {t('activeProjectsCount', { count: projectCount })}
           </p>
         )}
       </div>
@@ -57,17 +58,15 @@ export default async function HomePage() {
 
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#3b6475]">
-                Initiate
+                {t('createTag')}
               </span>
               <h2 className="text-2xl font-bold text-[#0F172A] mt-1">
-                Create Project
+                {t('createTitle')}
               </h2>
             </div>
 
-            <p className="text-sm text-[#334155] leading-relaxed">
-              Have an idea?
-              <br />
-              Create a project and find teammates.
+            <p className="text-sm text-[#334155] leading-relaxed whitespace-pre-line">
+              {t('createDesc')}
             </p>
           </div>
 
@@ -79,7 +78,7 @@ export default async function HomePage() {
                 fullWidth
                 className="bg-white hover:bg-[#FAF9F6] text-[#0F172A] border-white/80 shadow-xs font-semibold"
               >
-                <span>Create Project</span>
+                <span>{t('createButton')}</span>
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
             </Link>
@@ -95,15 +94,15 @@ export default async function HomePage() {
 
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-[#674bb5]">
-                Collaborate
+                {t('joinTag')}
               </span>
               <h2 className="text-2xl font-bold text-[#0F172A] mt-1">
-                Join Project
+                {t('joinTitle')}
               </h2>
             </div>
 
-            <p className="text-sm text-[#334155] leading-relaxed">
-              Explore projects and find a team that matches your interests.
+            <p className="text-sm text-[#334155] leading-relaxed whitespace-pre-line">
+              {t('joinDesc')}
             </p>
           </div>
 
@@ -115,7 +114,7 @@ export default async function HomePage() {
                 fullWidth
                 className="bg-white hover:bg-[#FAF9F6] text-[#0F172A] border-white/80 shadow-xs font-semibold"
               >
-                <span>Join Project</span>
+                <span>{t('joinButton')}</span>
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
             </Link>

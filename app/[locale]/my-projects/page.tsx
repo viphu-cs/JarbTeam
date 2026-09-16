@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +12,8 @@ import {
   Inbox,
 } from 'lucide-react';
 import { Project } from '@/types';
+import { getTranslations, getLocale } from 'next-intl/server';
+import { getProjectTypeLabel, getStatusLabel } from '@/lib/utils/labels';
 
 interface ProjectWithMembers extends Project {
   project_members?: { id: string; role?: string }[];
@@ -22,13 +24,18 @@ interface ProjectWithMembers extends Project {
 export const revalidate = 0;
 
 export default async function MyProjectsPage() {
+  const t = await getTranslations('myProjects');
+  const tCommon = await getTranslations('common');
+  const tProjects = await getTranslations('projects');
+  const locale = await getLocale();
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login?redirectedFrom=/my-projects');
+    redirect(`/${locale}/login?redirectedFrom=/${locale}/my-projects`);
   }
 
   // 1. Fetch Owned Projects
@@ -96,10 +103,10 @@ export default async function MyProjectsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
-            My Projects
+            {t('pageTitle')}
           </h1>
           <p className="text-sm text-[#64748B] mt-1">
-            Manage projects you have created and view teams you have joined.
+            {t('pageSubtitle')}
           </p>
         </div>
 
@@ -107,13 +114,13 @@ export default async function MyProjectsPage() {
           <Link href="/join-requests">
             <Button variant="secondary" size="md">
               <Inbox className="w-4 h-4 mr-1" />
-              Join Requests
+              {t('requestsButton')}
             </Button>
           </Link>
           <Link href="/projects/create">
             <Button variant="primary" size="md" className="shadow-xs">
               <PlusCircle className="w-4 h-4 mr-1" />
-              Create Project
+              {t('createButton')}
             </Button>
           </Link>
         </div>
@@ -124,7 +131,7 @@ export default async function MyProjectsPage() {
         <div className="flex items-center gap-2">
           <FolderKanban className="w-5 h-5 text-[#7CA5B8]" />
           <h2 className="text-lg font-bold text-[#0F172A]">
-            Projects I Lead ({ownedProjects?.length || 0})
+            {t('projectsILead')} ({ownedProjects?.length || 0})
           </h2>
         </div>
 
@@ -143,13 +150,15 @@ export default async function MyProjectsPage() {
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <Badge variant="blue" size="sm">
-                        {project.project_type}
+                        {getProjectTypeLabel(tCommon, project.project_type)}
                       </Badge>
                       <Badge
                         variant={project.status === 'open' ? 'green' : 'gray'}
                         size="sm"
                       >
-                        {project.status === 'open' ? 'Recruiting' : project.status}
+                        {project.status === 'open'
+                          ? tCommon('status.recruiting')
+                          : getStatusLabel(tCommon, project.status)}
                       </Badge>
                     </div>
 
@@ -166,9 +175,9 @@ export default async function MyProjectsPage() {
                     <span className="text-xs text-[#64748B] flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5 text-[#7CA5B8]" />
                       <span>
-                        {currentMembers}/{project.team_size} members
+                        {currentMembers}/{project.team_size} {tProjects('members')}
                         {isFull && (
-                          <strong className="text-rose-600 ml-1">(Full)</strong>
+                          <strong className="text-rose-600 ml-1">({tProjects('full')})</strong>
                         )}
                       </span>
                     </span>
@@ -176,12 +185,12 @@ export default async function MyProjectsPage() {
                     <div className="flex items-center gap-2">
                       <Link href={`/projects/${project.id}`}>
                         <Button variant="secondary" size="sm">
-                          View
+                          {t('view')}
                         </Button>
                       </Link>
                       <Link href="/join-requests">
                         <Button variant="accent" size="sm">
-                          Requests
+                          {t('requests')}
                         </Button>
                       </Link>
                     </div>
@@ -193,11 +202,11 @@ export default async function MyProjectsPage() {
         ) : (
           <Card className="bg-white border-[#E2E8F0] p-8 text-center space-y-3">
             <p className="text-sm text-[#64748B]">
-              You haven&apos;t created any projects yet.
+              {t('noOwnedProjects')}
             </p>
             <Link href="/projects/create">
               <Button variant="primary" size="sm">
-                Create Your First Project
+                {t('createFirst')}
               </Button>
             </Link>
           </Card>
@@ -209,7 +218,7 @@ export default async function MyProjectsPage() {
         <div className="flex items-center gap-2">
           <Users className="w-5 h-5 text-[#A78BFA]" />
           <h2 className="text-lg font-bold text-[#0F172A]">
-            Teams I Have Joined ({joinedProjects.length})
+            {t('teamsIJoined')} ({joinedProjects.length})
           </h2>
         </div>
 
@@ -227,10 +236,10 @@ export default async function MyProjectsPage() {
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <Badge variant="blue" size="sm">
-                        {project.project_type}
+                        {getProjectTypeLabel(tCommon, project.project_type)}
                       </Badge>
                       <Badge variant="lavender" size="sm">
-                        Role: {project.memberRole}
+                        {project.memberRole}
                       </Badge>
                     </div>
 
@@ -247,13 +256,13 @@ export default async function MyProjectsPage() {
                     <span className="text-xs text-[#64748B] flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5 text-[#A78BFA]" />
                       <span>
-                        {currentMembers}/{project.team_size} members
+                        {currentMembers}/{project.team_size} {tProjects('members')}
                       </span>
                     </span>
 
                     <Link href={`/projects/${project.id}`}>
                       <Button variant="secondary" size="sm">
-                        <span>View Project</span>
+                        <span>{tProjects('viewProject')}</span>
                         <ArrowRight className="w-3.5 h-3.5 ml-1" />
                       </Button>
                     </Link>
@@ -265,11 +274,11 @@ export default async function MyProjectsPage() {
         ) : (
           <Card className="bg-white border-[#E2E8F0] p-8 text-center space-y-3">
             <p className="text-sm text-[#64748B]">
-              You are not a member of any external teams yet.
+              {t('noJoinedProjects')}
             </p>
             <Link href="/projects">
               <Button variant="secondary" size="sm">
-                Explore Open Projects
+                {t('exploreOpen')}
               </Button>
             </Link>
           </Card>

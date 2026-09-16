@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useTranslations } from 'next-intl';
 
 interface GoogleAuthButtonProps {
   onError?: (error: string) => void;
@@ -9,6 +10,7 @@ interface GoogleAuthButtonProps {
 }
 
 export function GoogleAuthButton({ onError, className = '' }: GoogleAuthButtonProps) {
+  const t = useTranslations('auth');
   const [loading, setLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
@@ -74,7 +76,7 @@ export function GoogleAuthButton({ onError, className = '' }: GoogleAuthButtonPr
           fill="#EA4335"
         />
       </svg>
-      <span>{loading ? 'Connecting to Google...' : 'Continue with Google'}</span>
+      <span>{loading ? t('connectingGoogle') : t('continueWithGoogle')}</span>
     </button>
   );
 }

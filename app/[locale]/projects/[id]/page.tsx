@@ -1,12 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { calculateMatchScore } from '@/lib/matching';
 import { Project, Profile, ProjectMember } from '@/types';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { JoinRequestDialog } from '@/components/project/JoinRequestDialog';
+import { getTranslations, getLocale } from 'next-intl/server';
+import { formatDate } from '@/lib/utils/format';
+import { getProjectTypeLabel, getWorkStyleLabel, getStatusLabel } from '@/lib/utils/labels';
 import {
   Users,
   Calendar,
@@ -27,6 +30,11 @@ interface ProjectDetailPageProps {
 
 export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const { id } = await params;
+  const tDetail = await getTranslations('projectDetail');
+  const tCommon = await getTranslations('common');
+  const tProjects = await getTranslations('projects');
+  const locale = await getLocale();
+
   const supabase = await createClient();
 
   const {
@@ -138,18 +146,13 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
   const isClosed = project.status === 'closed' || project.status === 'completed';
 
   // Format deadline
-  let deadlineText = 'Not specified';
-  if (project.deadline) {
-    try {
-      deadlineText = new Date(project.deadline).toLocaleDateString('en-US', {
+  const deadlineText = project.deadline
+    ? formatDate(project.deadline, locale, {
         month: 'long',
         day: 'numeric',
         year: 'numeric',
-      });
-    } catch {
-      deadlineText = project.deadline;
-    }
-  }
+      })
+    : tDetail('notSpecified');
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-6">
@@ -159,7 +162,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         className="inline-flex items-center gap-1.5 text-xs font-medium text-[#64748B] hover:text-[#0F172A] transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        Back to Explore Projects
+        {tDetail('backToExplore')}
       </Link>
 
       {/* Main Project Header Card */}
@@ -167,7 +170,9 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-[#F1F5F9]">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="blue">{project.project_type}</Badge>
+              <Badge variant="blue">
+                {getProjectTypeLabel(tCommon, project.project_type)}
+              </Badge>
               <Badge
                 variant={
                   project.status === 'open'
@@ -177,7 +182,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                     : 'gray'
                 }
               >
-                {project.status === 'open' ? 'Recruiting' : project.status}
+                {getStatusLabel(tCommon, project.status)}
               </Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
@@ -189,28 +194,28 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           <div className="shrink-0">
             {isOwner ? (
               <Link href="/join-requests">
-                <Button variant="accent" size="sm" className="shadow-xs">
+                <Button variant="accent" size="sm" className="shadow-xs cursor-pointer">
                   <Inbox className="w-4 h-4 mr-1.5" />
-                  Manage Join Requests
+                  {tDetail('manageRequests')}
                 </Button>
               </Link>
             ) : isMember ? (
               <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#DCFCE7] text-[#14532D] text-xs font-semibold border border-[#BBF7D0]">
                 <CheckCircle2 className="w-4 h-4" />
-                You are on this team
+                {tDetail('youAreOnTeam')}
               </div>
             ) : hasPendingRequest ? (
               <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#FEF9C3] text-[#713F12] text-xs font-semibold border border-[#FEF08A]">
                 <Clock className="w-4 h-4" />
-                Join request pending
+                {tDetail('requestPending')}
               </div>
             ) : isClosed ? (
               <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#F1F5F9] text-[#475569] text-xs font-semibold border border-[#E2E8F0]">
-                Project Closed
+                {tDetail('projectClosed')}
               </div>
             ) : isFull ? (
               <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 text-rose-700 text-xs font-semibold border border-rose-200">
-                Team is Full ({currentMembersCount}/{project.team_size})
+                {tDetail('teamFull', { current: currentMembersCount, total: project.team_size })}
               </div>
             ) : user ? (
               <JoinRequestDialog
@@ -220,8 +225,8 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               />
             ) : (
               <Link href={`/login?redirectedFrom=/projects/${project.id}`}>
-                <Button variant="primary" size="md">
-                  Log in to Request to Join
+                <Button variant="primary" size="md" className="cursor-pointer">
+                  {tDetail('loginToJoin')}
                 </Button>
               </Link>
             )}
@@ -231,31 +236,31 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         {/* Project Key Details Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-b border-[#F1F5F9] text-xs">
           <div>
-            <span className="text-[#64748B] block mb-1">Team Capacity</span>
+            <span className="text-[#64748B] block mb-1">{tDetail('teamCapacity')}</span>
             <span className="font-semibold text-[#0F172A] flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-[#7CA5B8]" />
-              {currentMembersCount} of {project.team_size} filled
+              {tDetail('filled', { current: currentMembersCount, total: project.team_size })}
             </span>
           </div>
 
           <div>
-            <span className="text-[#64748B] block mb-1">Work Style</span>
+            <span className="text-[#64748B] block mb-1">{tDetail('workStyle')}</span>
             <span className="font-semibold text-[#0F172A] flex items-center gap-1.5">
               <Laptop className="w-3.5 h-3.5 text-[#A78BFA]" />
-              {project.work_style}
+              {getWorkStyleLabel(tCommon, project.work_style)}
             </span>
           </div>
 
           <div>
-            <span className="text-[#64748B] block mb-1">Duration</span>
+            <span className="text-[#64748B] block mb-1">{tDetail('duration')}</span>
             <span className="font-semibold text-[#0F172A] flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-[#F472B6]" />
-              {project.duration || 'Flexible'}
+              {project.duration || tDetail('flexible')}
             </span>
           </div>
 
           <div>
-            <span className="text-[#64748B] block mb-1">Application Deadline</span>
+            <span className="text-[#64748B] block mb-1">{tDetail('applicationDeadline')}</span>
             <span className="font-semibold text-[#0F172A] flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-[#FDE047]" />
               {deadlineText}
@@ -266,7 +271,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         {/* Description */}
         <div className="pt-4 space-y-2">
           <h2 className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-            About the Project
+            {tDetail('aboutProject')}
           </h2>
           <p className="text-sm text-[#1E293B] leading-relaxed whitespace-pre-line">
             {project.description}
@@ -287,15 +292,15 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               </div>
               <div>
                 <h3 className="text-sm font-bold text-[#0F172A]">
-                  Why this project matches you
+                  {tDetail('whyMatches')}
                 </h3>
                 <p className="text-xs text-[#64748B]">
-                  Calculated based on your skills, roles, and study interests.
+                  {tDetail('whyMatchesSubtitle')}
                 </p>
               </div>
             </div>
             <span className="text-base font-bold text-[#3F1E8C] px-3 py-1 bg-white rounded-full border border-[#E0E7FF]">
-              {matchResult.totalScore}% Match
+              {matchResult.totalScore}% {tProjects('match')}
             </span>
           </div>
 
@@ -318,7 +323,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             </div>
           ) : (
             <p className="text-xs text-[#64748B] italic pt-1">
-              Add more skills and role preferences to your profile to get deeper match insights.
+              {tDetail('addMoreSkillsTip')}
             </p>
           )}
         </Card>
@@ -329,7 +334,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         {/* Required Skills */}
         <Card className="bg-white border-[#E2E8F0] space-y-3">
           <h2 className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-            Required Skills & Technologies
+            {tDetail('requiredSkillsTitle')}
           </h2>
           <div className="flex flex-wrap gap-1.5">
             {skills.length > 0 ? (
@@ -340,7 +345,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               ))
             ) : (
               <span className="text-xs text-[#94A3B8] italic">
-                No specific skills requested. All skill levels welcome.
+                {tDetail('noSkillsReq')}
               </span>
             )}
           </div>
@@ -349,7 +354,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         {/* Required Roles */}
         <Card className="bg-white border-[#E2E8F0] space-y-3">
           <h2 className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">
-            Open Teammate Roles
+            {tDetail('openRolesTitle')}
           </h2>
           <div className="flex flex-wrap gap-1.5">
             {project.required_roles && project.required_roles.length > 0 ? (
@@ -360,7 +365,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               ))
             ) : (
               <span className="text-xs text-[#94A3B8] italic">
-                Open to any role or general collaborator.
+                {tDetail('openToAllRoles')}
               </span>
             )}
           </div>
@@ -371,7 +376,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       <Card className="bg-white border-[#E2E8F0] space-y-4">
         <h2 className="text-sm font-bold text-[#0F172A] flex items-center gap-2 pb-2 border-b border-[#F1F5F9]">
           <Users className="w-4 h-4 text-[#7CA5B8]" />
-          Team Roster ({currentMembersCount}/{project.team_size})
+          {tDetail('teamRoster')} ({currentMembersCount}/{project.team_size})
         </h2>
 
         <div className="divide-y divide-[#F1F5F9]">
@@ -405,7 +410,9 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                 }
                 size="sm"
               >
-                {member.role || 'Member'}
+                {member.profile_id === project.owner_id
+                  ? tDetail('leadRole')
+                  : (member.role || tDetail('memberRole'))}
               </Badge>
             </div>
           ))}

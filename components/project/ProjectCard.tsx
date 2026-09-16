@@ -1,9 +1,12 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Project } from '@/types';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Calendar, Users, Sparkles, ArrowRight } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { formatDate } from '@/lib/utils/format';
+import { getProjectTypeLabel, getWorkStyleLabel } from '@/lib/utils/labels';
 
 interface ProjectCardProps {
   project: Project;
@@ -11,25 +14,17 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, hasUser }: ProjectCardProps) {
+  const tProjects = useTranslations('projects');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
+
   const currentMembersCount = project.members?.length || 1;
   const isFull = currentMembersCount >= project.team_size;
-
   const score = project.matchScore ?? 0;
 
-  // Format deadline
-  let deadlineText = 'Open enrollment';
-  if (project.deadline) {
-    try {
-      const d = new Date(project.deadline);
-      deadlineText = d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-    } catch {
-      deadlineText = project.deadline;
-    }
-  }
+  const deadlineText = project.deadline
+    ? formatDate(project.deadline, locale)
+    : tProjects('openEnrollment');
 
   return (
     <Card
@@ -41,7 +36,7 @@ export function ProjectCard({ project, hasUser }: ProjectCardProps) {
         {/* Header: Project Type & Match Score */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <Badge variant="blue" size="sm">
-            {project.project_type}
+            {getProjectTypeLabel(tCommon, project.project_type)}
           </Badge>
 
           {hasUser && project.matchScore !== undefined ? (
@@ -55,11 +50,11 @@ export function ProjectCard({ project, hasUser }: ProjectCardProps) {
               }`}
             >
               <Sparkles className="w-3 h-3" />
-              {score}% Match
+              {score}% {tProjects('match')}
             </span>
           ) : (
             <span className="text-[11px] text-[#64748B]">
-              {project.work_style}
+              {getWorkStyleLabel(tCommon, project.work_style)}
             </span>
           )}
         </div>
@@ -97,8 +92,8 @@ export function ProjectCard({ project, hasUser }: ProjectCardProps) {
           <span className="flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 text-[#7CA5B8]" />
             <span>
-              {currentMembersCount}/{project.team_size} members
-              {isFull && <strong className="text-rose-600 ml-1">(Full)</strong>}
+              {currentMembersCount}/{project.team_size} {tProjects('members')}
+              {isFull && <strong className="text-rose-600 ml-1">({tProjects('full')})</strong>}
             </span>
           </span>
 
@@ -115,7 +110,7 @@ export function ProjectCard({ project, hasUser }: ProjectCardProps) {
             size="sm"
             className="group-hover:bg-[#D4E6F1] group-hover:border-[#BEE3F8] group-hover:text-[#0B3B4B] transition-all"
           >
-            <span>View Project</span>
+            <span>{tProjects('viewProject')}</span>
             <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Button>
         </Link>

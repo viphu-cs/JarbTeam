@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Card } from '@/components/ui/Card';
 import { ChipInput } from '@/components/profile/ChipInput';
 import { User, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { getProjectTypeLabel, getWorkStyleLabel } from '@/lib/utils/labels';
 
 interface ProfileEditFormProps {
   initialProfile: Profile;
@@ -44,6 +46,9 @@ export function ProfileEditForm({
   availableSkills,
   availableInterests,
 }: ProfileEditFormProps) {
+  const t = useTranslations('profileEdit');
+  const tCommon = useTranslations('common');
+
   const [fullName, setFullName] = useState(initialProfile.full_name || '');
   const [university, setUniversity] = useState(initialProfile.university || '');
   const [major, setMajor] = useState(initialProfile.major || '');
@@ -116,22 +121,22 @@ export function ProfileEditForm({
         <div className="flex items-center gap-2 pb-2 border-b border-[#F1F5F9]">
           <User className="w-5 h-5 text-[#7CA5B8]" />
           <h2 className="text-base font-semibold text-[#0F172A]">
-            Personal & Academic Information
+            {t('personalSection')}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Full Name"
+            label={t('fullName')}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
             disabled={isPending}
           />
           <Input
-            label="University"
+            label={t('university')}
             value={university}
-            placeholder="e.g. Stanford University, Chulalongkorn, etc."
+            placeholder={t('universityPlaceholder')}
             onChange={(e) => setUniversity(e.target.value)}
             disabled={isPending}
           />
@@ -139,33 +144,33 @@ export function ProfileEditForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Major / Field of Study"
+            label={t('major')}
             value={major}
-            placeholder="e.g. Computer Science, Industrial Design"
+            placeholder={t('majorPlaceholder')}
             onChange={(e) => setMajor(e.target.value)}
             disabled={isPending}
           />
           <Input
-            label="Availability"
+            label={t('availability')}
             value={availability}
-            placeholder="e.g. 10 hrs/week, Evenings & Weekends"
+            placeholder={t('availabilityPlaceholder')}
             onChange={(e) => setAvailability(e.target.value)}
             disabled={isPending}
           />
         </div>
 
         <Textarea
-          label="Bio / Introduction"
+          label={t('bio')}
           value={bio}
           rows={3}
-          placeholder="Share a short summary about your background, what you enjoy building, and what kind of teams you're looking for..."
+          placeholder={t('bioPlaceholder')}
           onChange={(e) => setBio(e.target.value)}
           disabled={isPending}
         />
 
         <div>
           <label className="block text-xs font-semibold text-[#0F172A] mb-2 tracking-wide">
-            Preferred Work Style
+            {t('workStyle')}
           </label>
           <div className="grid grid-cols-3 gap-3">
             {WORK_STYLES.map((style) => (
@@ -179,7 +184,7 @@ export function ProfileEditForm({
                     : 'bg-white text-[#475569] border-[#E2E8F0] hover:bg-[#FAF9F6]'
                 }`}
               >
-                {style}
+                {getWorkStyleLabel(tCommon, style)}
               </button>
             ))}
           </div>
@@ -190,16 +195,16 @@ export function ProfileEditForm({
       <Card className="bg-white border-[#E2E8F0] space-y-6">
         <div className="pb-2 border-b border-[#F1F5F9]">
           <h2 className="text-base font-semibold text-[#0F172A]">
-            Skills & Teammate Preferences
+            {t('skillsSection')}
           </h2>
           <p className="text-xs text-[#64748B] mt-0.5">
-            This powers the rule-based matching system to connect you with suitable projects.
+            {t('skillsSubtitle')}
           </p>
         </div>
 
         <ChipInput
-          label="Your Skills"
-          helperText="Add technologies, tools, and proficiencies (e.g. React, Python, Figma)."
+          label={t('skillsLabel')}
+          helperText={t('skillsHelper')}
           values={skills}
           onChange={setSkills}
           suggestions={availableSkills.map((s) => s.name)}
@@ -207,8 +212,8 @@ export function ProfileEditForm({
         />
 
         <ChipInput
-          label="Preferred Roles in a Team"
-          helperText="Select or type the roles you want to take on in a project."
+          label={t('rolesLabel')}
+          helperText={t('rolesHelper')}
           values={preferredRoles}
           onChange={setPreferredRoles}
           suggestions={COMMON_ROLES}
@@ -216,8 +221,8 @@ export function ProfileEditForm({
         />
 
         <ChipInput
-          label="Interests & Domain Topics"
-          helperText="Areas you care about (e.g. Artificial Intelligence, Healthcare, EdTech)."
+          label={t('interestsLabel')}
+          helperText={t('interestsHelper')}
           values={interests}
           onChange={setInterests}
           suggestions={availableInterests.map((i) => i.name)}
@@ -226,7 +231,7 @@ export function ProfileEditForm({
 
         <div>
           <label className="block text-xs font-semibold text-[#0F172A] mb-2 tracking-wide">
-            Preferred Project Types
+            {t('typesLabel')}
           </label>
           <div className="flex flex-wrap gap-2">
             {PROJECT_TYPES.map((type) => {
@@ -242,8 +247,8 @@ export function ProfileEditForm({
                       : 'bg-[#F8FAFC] text-[#475569] border-[#E2E8F0] hover:bg-[#F1F5F9]'
                   }`}
                 >
-                  {selected && <Check className="w-3 h-3 text-[#713F12]" />}
-                  {type}
+                  {selected && <Check className="w-3 text-[#713F12]" />}
+                  {getProjectTypeLabel(tCommon, type)}
                 </button>
               );
             })}
@@ -258,9 +263,9 @@ export function ProfileEditForm({
           variant="primary"
           size="lg"
           disabled={isPending}
-          className="shadow-sm"
+          className="shadow-sm cursor-pointer"
         >
-          {isPending ? 'Saving Profile...' : 'Save Profile'}
+          {isPending ? t('savingButton') : t('saveButton')}
         </Button>
       </div>
     </form>

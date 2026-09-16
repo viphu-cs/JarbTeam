@@ -1,10 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+export async function updateSession(
+  request: NextRequest,
+  intlResponse?: NextResponse
+) {
+  const response = intlResponse ?? NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,42 +19,54 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            response.cookies.set(name, value, options)
           );
         },
       },
     }
   );
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  // Refresh auth session
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const protectedRoutes = ['/profile/edit', '/projects/create', '/my-projects', '/join-requests'];
+  const pathname = request.nextUrl.pathname;
+
+  // Extract current locale and clean pathname
+  const localeMatch = pathname.match(/^\/(th|en)($|\/)/);
+  const locale = localeMatch ? localeMatch[1] : 'th';
+  const pathnameWithoutLocale = pathname.replace(/^\/(th|en)/, '') || '/';
+
+  const protectedRoutes = [
+    '/profile/edit',
+    '/projects/create',
+    '/my-projects',
+    '/join-requests',
+  ];
+
   const isProtectedRoute = protectedRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
+    pathnameWithoutLocale.startsWith(route)
   );
 
+  // If not authenticated and visiting protected route, redirect to localized login
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('redirectedFrom', request.nextUrl.pathname);
+    url.pathname = `/${locale}/login`;
+    url.searchParams.set('redirectedFrom', pathname);
     return NextResponse.redirect(url);
   }
 
-  // If user is logged in and visits /login or /signup, redirect to home
-  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
+  // If authenticated and visiting login or signup, redirect to localized home
+  if (
+    user &&
+    (pathnameWithoutLocale === '/login' || pathnameWithoutLocale === '/signup')
+  ) {
     const url = request.nextUrl.clone();
-    url.pathname = '/';
+    url.pathname = `/${locale}`;
     return NextResponse.redirect(url);
   }
 
-  return supabaseResponse;
+  return response;
 }

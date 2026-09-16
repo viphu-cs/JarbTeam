@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useTransition, Suspense } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { signUpAction } from '@/actions/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -11,6 +12,7 @@ import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import { GraduationCap, ArrowRight } from 'lucide-react';
 
 function SignUpForm() {
+  const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const urlError = searchParams.get('error');
 
@@ -48,43 +50,43 @@ function SignUpForm() {
           <div className="w-full border-t border-[#E2E8F0]" />
         </div>
         <span className="relative bg-white px-3 text-[11px] font-medium uppercase tracking-wider text-[#94A3B8]">
-          or with university email
+          {t('orWithEmail')}
         </span>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label="Full Name"
+          label={t('fullName')}
           name="fullName"
-          placeholder="e.g. Alex Chen"
+          placeholder={t('fullNamePlaceholder')}
           required
           disabled={isPending}
         />
 
         <Input
-          label="University Email"
+          label={t('universityEmail')}
           name="email"
           type="email"
-          placeholder="student@university.edu"
-          helperText="Use your university academic email address."
+          placeholder={t('emailPlaceholder')}
+          helperText={t('emailHelper')}
           required
           disabled={isPending}
         />
 
         <Input
-          label="Password"
+          label={t('password')}
           name="password"
           type="password"
-          placeholder="At least 6 characters"
+          placeholder={t('passwordPlaceholder')}
           required
           disabled={isPending}
         />
 
         <Input
-          label="Confirm Password"
+          label={t('confirmPassword')}
           name="confirmPassword"
           type="password"
-          placeholder="Confirm your password"
+          placeholder={t('confirmPasswordPlaceholder')}
           required
           disabled={isPending}
         />
@@ -97,19 +99,19 @@ function SignUpForm() {
             size="md"
             disabled={isPending}
           >
-            {isPending ? 'Creating account...' : 'Create Account'}
+            {isPending ? t('creatingAccount') : t('createAccount')}
             {!isPending && <ArrowRight className="w-4 h-4 ml-1" />}
           </Button>
         </div>
       </form>
 
       <div className="mt-6 pt-5 border-t border-[#F1F5F9] text-center text-xs text-[#64748B]">
-        Already have an account?{' '}
+        {t('alreadyHaveAccount')}{' '}
         <Link
           href="/login"
           className="font-semibold text-[#0B3B4B] hover:underline"
         >
-          Log in
+          {t('signIn')}
         </Link>
       </div>
     </Card>
@@ -117,6 +119,8 @@ function SignUpForm() {
 }
 
 export default function SignUpPage() {
+  const t = useTranslations('auth');
+
   return (
     <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center py-12 px-4 sm:px-6">
       <div className="max-w-md w-full">
@@ -126,10 +130,10 @@ export default function SignUpPage() {
             <GraduationCap className="w-6 h-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">
-            Join JarbTeam
+            {t('joinTitle')}
           </h1>
           <p className="mt-1.5 text-sm text-[#64748B]">
-            Find project teammates across your university.
+            {t('signupSubtitle')}
           </p>
         </div>
 

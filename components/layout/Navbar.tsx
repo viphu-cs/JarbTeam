@@ -1,9 +1,12 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { signOutAction } from '@/actions/auth';
 import { Users, PlusCircle, Compass, FolderKanban, Inbox, UserCircle } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 export async function Navbar() {
+  const t = await getTranslations('common');
   const supabase = await createClient();
   const {
     data: { user },
@@ -39,7 +42,7 @@ export async function Navbar() {
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#475569] hover:text-[#0F172A] hover:bg-[#F0F4F8] rounded-xl transition-all"
           >
             <Compass className="w-4 h-4 text-[#7CA5B8]" />
-            Explore
+            {t('explore')}
           </Link>
 
           {user && (
@@ -49,45 +52,47 @@ export async function Navbar() {
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#475569] hover:text-[#0F172A] hover:bg-[#F0F4F8] rounded-xl transition-all"
               >
                 <PlusCircle className="w-4 h-4 text-[#A78BFA]" />
-                Create Project
+                {t('createProject')}
               </Link>
               <Link
                 href="/my-projects"
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#475569] hover:text-[#0F172A] hover:bg-[#F0F4F8] rounded-xl transition-all"
               >
                 <FolderKanban className="w-4 h-4 text-[#7CA5B8]" />
-                My Projects
+                {t('myProjects')}
               </Link>
               <Link
                 href="/join-requests"
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#475569] hover:text-[#0F172A] hover:bg-[#F0F4F8] rounded-xl transition-all"
               >
                 <Inbox className="w-4 h-4 text-[#F472B6]" />
-                Requests
+                {t('requests')}
               </Link>
             </>
           )}
         </nav>
 
-        {/* User / Auth Actions */}
+        {/* User / Auth Actions & Language Switcher */}
         <div className="flex items-center gap-2.5">
+          <LanguageSwitcher />
+
           {user ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href="/profile"
                 className="flex items-center gap-2 px-3 py-1.5 bg-[#FAF9F6] border border-[#E2E8F0] hover:border-[#CBD5E1] rounded-2xl text-xs font-medium text-[#0F172A] transition-all"
               >
                 <UserCircle className="w-4 h-4 text-[#7CA5B8]" />
-                <span className="max-w-[120px] truncate">
-                  {profile?.full_name || 'Profile'}
+                <span className="max-w-[100px] sm:max-w-[120px] truncate">
+                  {profile?.full_name || t('profile')}
                 </span>
               </Link>
               <form action={signOutAction}>
                 <button
                   type="submit"
-                  className="text-xs font-medium text-[#64748B] hover:text-[#0F172A] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                  className="text-xs font-medium text-[#64748B] hover:text-[#0F172A] px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
                 >
-                  Log Out
+                  {t('logout')}
                 </button>
               </form>
             </div>
@@ -95,15 +100,15 @@ export async function Navbar() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="px-3.5 py-1.5 text-xs font-semibold text-[#334155] hover:text-[#0F172A] rounded-xl transition-colors"
+                className="px-3 py-1.5 text-xs font-semibold text-[#334155] hover:text-[#0F172A] rounded-xl transition-colors"
               >
-                Log In
+                {t('login')}
               </Link>
               <Link
                 href="/signup"
-                className="px-4 py-1.5 text-xs font-semibold bg-[#D4E6F1] text-[#0F172A] border border-[#BEE3F8] hover:bg-[#BEE3F8] rounded-xl transition-colors shadow-sm"
+                className="px-3.5 py-1.5 text-xs font-semibold bg-[#D4E6F1] text-[#0F172A] border border-[#BEE3F8] hover:bg-[#BEE3F8] rounded-xl transition-colors shadow-sm"
               >
-                Sign Up
+                {t('signup')}
               </Link>
             </div>
           )}

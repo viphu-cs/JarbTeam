@@ -2,12 +2,16 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { Profile, Skill, Interest } from '@/types';
+import { getTranslations, getLocale } from 'next-intl/server';
 
 interface ProfileEditPageProps {
   searchParams: Promise<{ onboarding?: string }>;
 }
 
 export default async function ProfileEditPage({ searchParams }: ProfileEditPageProps) {
+  const t = await getTranslations('profileEdit');
+  const locale = await getLocale();
+
   const { onboarding } = await searchParams;
   const isOnboarding = onboarding === 'true';
 
@@ -17,7 +21,7 @@ export default async function ProfileEditPage({ searchParams }: ProfileEditPageP
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect(`/${locale}/login`);
   }
 
   // Fetch current user's profile
@@ -89,10 +93,10 @@ export default async function ProfileEditPage({ searchParams }: ProfileEditPageP
         <div className="mb-6 p-4 rounded-2xl bg-[#E8F1F5] border border-[#BEE3F8] text-[#0B3B4B] flex items-start gap-3 shadow-xs">
           <div className="text-xs space-y-1">
             <h2 className="font-bold text-sm text-[#0F172A]">
-              Welcome to JarbTeam! 👋
+              {t('onboardingWelcome')}
             </h2>
             <p className="text-[#334155]">
-              Your Google account is connected. Complete your student profile below so we can start matching you with suitable teammates and university projects.
+              {t('onboardingDesc')}
             </p>
           </div>
         </div>
@@ -100,10 +104,10 @@ export default async function ProfileEditPage({ searchParams }: ProfileEditPageP
 
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">
-          {isOnboarding ? 'Complete Your Student Profile' : 'Edit Your Student Profile'}
+          {isOnboarding ? t('pageTitleOnboarding') : t('pageTitle')}
         </h1>
         <p className="text-sm text-[#64748B] mt-1">
-          Tell other students about your university background, skills, and the kinds of projects you want to build.
+          {t('pageSubtitle')}
         </p>
       </div>
 

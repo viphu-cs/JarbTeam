@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useTransition, Suspense } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { signInAction } from '@/actions/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -11,6 +12,7 @@ import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 import { Users, ArrowRight } from 'lucide-react';
 
 function LoginForm() {
+  const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const urlError = searchParams.get('error');
 
@@ -48,25 +50,25 @@ function LoginForm() {
           <div className="w-full border-t border-[#E2E8F0]" />
         </div>
         <span className="relative bg-white px-3 text-[11px] font-medium uppercase tracking-wider text-[#94A3B8]">
-          or with university email
+          {t('orWithEmail')}
         </span>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label="University Email"
+          label={t('universityEmail')}
           name="email"
           type="email"
-          placeholder="student@university.edu"
+          placeholder={t('emailPlaceholder')}
           required
           disabled={isPending}
         />
 
         <Input
-          label="Password"
+          label={t('password')}
           name="password"
           type="password"
-          placeholder="Enter your password"
+          placeholder={t('passwordPlaceholder')}
           required
           disabled={isPending}
         />
@@ -79,19 +81,19 @@ function LoginForm() {
             size="md"
             disabled={isPending}
           >
-            {isPending ? 'Signing in...' : 'Sign In'}
+            {isPending ? t('signingIn') : t('signIn')}
             {!isPending && <ArrowRight className="w-4 h-4 ml-1" />}
           </Button>
         </div>
       </form>
 
       <div className="mt-6 pt-5 border-t border-[#F1F5F9] text-center text-xs text-[#64748B]">
-        Don&apos;t have an account yet?{' '}
+        {t('dontHaveAccount')}{' '}
         <Link
           href="/signup"
           className="font-semibold text-[#0B3B4B] hover:underline"
         >
-          Sign up
+          {t('createAccount')}
         </Link>
       </div>
     </Card>
@@ -99,6 +101,8 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+  const t = useTranslations('auth');
+
   return (
     <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center py-12 px-4 sm:px-6">
       <div className="max-w-md w-full">
@@ -108,10 +112,10 @@ export default function LoginPage() {
             <Users className="w-6 h-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">
-            Welcome Back
+            {t('welcomeBack')}
           </h1>
           <p className="mt-1.5 text-sm text-[#64748B]">
-            Log in to continue collaborating on JarbTeam.
+            {t('loginSubtitle')}
           </p>
         </div>
 

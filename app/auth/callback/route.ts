@@ -12,9 +12,13 @@ export async function GET(request: NextRequest) {
   const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
   const baseUrl = isLocal ? origin : forwardedHost ? `https://${forwardedHost}` : origin;
 
+  // Determine locale from cookie or fallback to default 'th'
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
+  const locale = cookieLocale === 'en' || cookieLocale === 'th' ? cookieLocale : 'th';
+
   // Handle OAuth provider errors
   if (error) {
-    const loginUrl = new URL('/login', baseUrl);
+    const loginUrl = new URL(`/${locale}/login`, baseUrl);
     loginUrl.searchParams.set('error', errorDescription || error || 'Google authentication failed');
     return NextResponse.redirect(loginUrl);
   }
@@ -26,7 +30,7 @@ export async function GET(request: NextRequest) {
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
-      const loginUrl = new URL('/login', baseUrl);
+      const loginUrl = new URL(`/${locale}/login`, baseUrl);
       loginUrl.searchParams.set('error', exchangeError.message);
       return NextResponse.redirect(loginUrl);
     }
@@ -44,18 +48,18 @@ export async function GET(request: NextRequest) {
         .eq('id', user.id)
         .maybeSingle();
 
-      // If profile does not exist: redirect to /profile/edit?onboarding=true
+      // If profile does not exist: redirect to /[locale]/profile/edit?onboarding=true
       if (!profile) {
-        return NextResponse.redirect(`${baseUrl}/profile/edit?onboarding=true`);
+        return NextResponse.redirect(`${baseUrl}/${locale}/profile/edit?onboarding=true`);
       }
 
-      // If profile already exists: redirect to /
-      return NextResponse.redirect(`${baseUrl}/`);
+      // If profile already exists: redirect to /[locale]
+      return NextResponse.redirect(`${baseUrl}/${locale}`);
     }
   }
 
   // Fallback redirect if code is missing
-  const fallbackUrl = new URL('/login', baseUrl);
+  const fallbackUrl = new URL(`/${locale}/login`, baseUrl);
   fallbackUrl.searchParams.set('error', 'Authentication code was missing or invalid');
   return NextResponse.redirect(fallbackUrl);
 }

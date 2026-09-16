@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Send, X, CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface JoinRequestDialogProps {
   projectId: string;
@@ -18,6 +19,9 @@ export function JoinRequestDialog({
   projectName,
   requiredRoles,
 }: JoinRequestDialogProps) {
+  const t = useTranslations('projectDetail.requestDialog');
+  const tDetail = useTranslations('projectDetail');
+
   const [isOpen, setIsOpen] = useState(false);
   const [requestedRole, setRequestedRole] = useState(
     requiredRoles[0] || 'Team Member'
@@ -51,8 +55,8 @@ export function JoinRequestDialog({
       <div className="p-4 rounded-2xl bg-[#DCFCE7] border border-[#BBF7D0] text-[#14532D] flex items-center gap-3">
         <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
         <div className="text-xs">
-          <strong className="block font-semibold">Join request sent!</strong>
-          The project lead will review your request. You can track this under My Requests.
+          <strong className="block font-semibold">{t('successTitle')}</strong>
+          {t('successDesc')}
         </div>
       </div>
     );
@@ -64,10 +68,10 @@ export function JoinRequestDialog({
         variant="primary"
         size="lg"
         onClick={() => setIsOpen(true)}
-        className="w-full sm:w-auto shadow-sm"
+        className="w-full sm:w-auto shadow-sm cursor-pointer"
       >
         <Send className="w-4 h-4 mr-1.5" />
-        Request to Join
+        {tDetail('requestToJoin')}
       </Button>
     );
   }
@@ -77,16 +81,16 @@ export function JoinRequestDialog({
       <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
         <div>
           <h3 className="font-bold text-sm text-[#0F172A]">
-            Request to Join &ldquo;{projectName}&rdquo;
+            {t('title', { name: projectName })}
           </h3>
           <p className="text-xs text-[#64748B]">
-            Introduce yourself to the project owner.
+            {t('subtitle')}
           </p>
         </div>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          className="text-[#64748B] hover:text-[#0F172A] p-1 rounded-lg"
+          className="text-[#64748B] hover:text-[#0F172A] p-1 rounded-lg cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -101,7 +105,7 @@ export function JoinRequestDialog({
       <form onSubmit={handleSubmit} className="space-y-3.5">
         <div>
           <label className="block text-xs font-semibold text-[#0F172A] mb-1">
-            Role you want to take on
+            {t('roleLabel')}
           </label>
           {requiredRoles.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-2">
@@ -123,7 +127,7 @@ export function JoinRequestDialog({
           )}
           <Input
             value={requestedRole}
-            placeholder="e.g. Frontend Developer, Researcher"
+            placeholder={t('rolePlaceholder')}
             onChange={(e) => setRequestedRole(e.target.value)}
             required
             disabled={isPending}
@@ -131,8 +135,8 @@ export function JoinRequestDialog({
         </div>
 
         <Textarea
-          label="Message to Project Lead"
-          placeholder="Briefly explain what you'd like to work on and why you're excited about this project..."
+          label={t('messageLabel')}
+          placeholder={t('messagePlaceholder')}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={3}
@@ -146,16 +150,18 @@ export function JoinRequestDialog({
             size="sm"
             onClick={() => setIsOpen(false)}
             disabled={isPending}
+            className="cursor-pointer"
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             variant="primary"
             size="sm"
             disabled={isPending}
+            className="cursor-pointer"
           >
-            {isPending ? 'Sending...' : 'Send Request'}
+            {isPending ? t('sending') : t('send')}
           </Button>
         </div>
       </form>

@@ -2,13 +2,15 @@ import { createClient } from '@/lib/supabase/server';
 import { ProjectListClient } from '@/components/project/ProjectListClient';
 import { calculateMatchScore } from '@/lib/matching';
 import { Project, Profile, Skill, Interest, ProjectMember } from '@/types';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Button } from '@/components/ui/Button';
 import { PlusCircle } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 export const revalidate = 0; // Fresh data for teammate searches
 
 export default async function ProjectsPage() {
+  const t = await getTranslations('projects');
   const supabase = await createClient();
   const {
     data: { user },
@@ -111,17 +113,17 @@ export default async function ProjectsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
-            Explore Projects
+            {t('pageTitle')}
           </h1>
           <p className="text-sm text-[#64748B] mt-1">
-            Discover student projects looking for teammates across courses, hackathons, and ventures.
+            {t('pageSubtitle')}
           </p>
         </div>
 
         <Link href="/projects/create">
           <Button variant="primary" size="md" className="shadow-xs">
             <PlusCircle className="w-4 h-4" />
-            Create Project
+            {t('createProject')}
           </Button>
         </Link>
       </div>

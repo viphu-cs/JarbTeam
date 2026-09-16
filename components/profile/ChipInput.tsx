@@ -3,6 +3,7 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { X, Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface ChipInputProps {
   label: string;
@@ -20,9 +21,10 @@ export function ChipInput({
   values,
   onChange,
   suggestions = [],
-  placeholder = 'Type and press Enter...',
+  placeholder,
   variant = 'blue',
 }: ChipInputProps) {
+  const t = useTranslations('chips');
   const [inputValue, setInputValue] = useState('');
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -85,7 +87,7 @@ export function ChipInput({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={values.length === 0 ? placeholder : 'Add more...'}
+          placeholder={values.length === 0 ? (placeholder || t('typeAndPressEnter')) : t('addMore')}
           className="flex-1 min-w-[140px] bg-transparent text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none px-1 py-1"
         />
       </div>
@@ -94,7 +96,7 @@ export function ChipInput({
       {unselectedSuggestions.length > 0 && (
         <div className="flex flex-wrap items-center gap-1 pt-1">
           <span className="text-[11px] font-medium text-[#64748B] mr-1">
-            Suggestions:
+            {t('suggestions')}
           </span>
           {unselectedSuggestions.slice(0, 7).map((suggestion) => (
             <button
