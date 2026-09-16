@@ -1,103 +1,127 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
+import { Button } from '@/components/ui/Button';
+import {
+  FolderPlus,
+  Compass,
+  ArrowRight,
+  GraduationCap,
+} from 'lucide-react';
 
-export default function Home() {
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const supabase = await createClient();
+
+  // Fetch count of open projects
+  const { count: projectCount } = await supabase
+    .from('projects')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'open');
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-[calc(100vh-8rem)] flex flex-col justify-center max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-20">
+      {/* Minimal Academic Hero */}
+      <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8F1F5] text-[#0B3B4B] border border-[#D4E6F1] text-xs font-semibold">
+          <GraduationCap className="w-3.5 h-3.5 text-[#3b6475]" />
+          <span>University Teammate Matching</span>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A] leading-[1.15]">
+          Find your next project.
+          <br />
+          <span className="text-[#3b6475]">Build it with the right people.</span>
+        </h1>
+
+        <p className="text-sm sm:text-base text-[#64748B] max-w-lg mx-auto">
+          Course projects, hackathons, competitions, and startups. Connect with peers based on skills, roles, and interests.
+        </p>
+
+        {projectCount !== null && projectCount > 0 && (
+          <p className="text-xs text-[#64748B] pt-1">
+            <strong>{projectCount}</strong> active student project
+            {projectCount === 1 ? '' : 's'} currently looking for teammates.
+          </p>
+        )}
+      </div>
+
+      {/* The Two Major Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto w-full">
+        {/* ACTION 1: CREATE PROJECT */}
+        <div className="rounded-[28px] p-7 sm:p-8 bg-gradient-to-br from-[#E8F1F5] to-[#D4E6F1] border border-[#BEE3F8] shadow-[0_4px_24px_rgba(124,165,184,0.12)] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1">
+          <div className="space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/90 text-[#0B3B4B] flex items-center justify-center border border-[#BEE3F8] shadow-xs">
+              <FolderPlus className="w-6 h-6 text-[#3b6475]" />
+            </div>
+
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#3b6475]">
+                Initiate
+              </span>
+              <h2 className="text-2xl font-bold text-[#0F172A] mt-1">
+                Create Project
+              </h2>
+            </div>
+
+            <p className="text-sm text-[#334155] leading-relaxed">
+              Have an idea?
+              <br />
+              Create a project and find teammates.
+            </p>
+          </div>
+
+          <div className="mt-8 pt-4">
+            <Link href="/projects/create" className="block">
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                className="bg-white hover:bg-[#FAF9F6] text-[#0F172A] border-white/80 shadow-xs font-semibold"
+              >
+                <span>Create Project</span>
+                <ArrowRight className="w-4 h-4 ml-1.5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* ACTION 2: JOIN PROJECT */}
+        <div className="rounded-[28px] p-7 sm:p-8 bg-gradient-to-br from-[#EDE9FE] to-[#E0E7FF] border border-[#DDD6FE] shadow-[0_4px_24px_rgba(167,139,250,0.12)] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1">
+          <div className="space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/90 text-[#3F1E8C] flex items-center justify-center border border-[#DDD6FE] shadow-xs">
+              <Compass className="w-6 h-6 text-[#674bb5]" />
+            </div>
+
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#674bb5]">
+                Collaborate
+              </span>
+              <h2 className="text-2xl font-bold text-[#0F172A] mt-1">
+                Join Project
+              </h2>
+            </div>
+
+            <p className="text-sm text-[#334155] leading-relaxed">
+              Explore projects and find a team that matches your interests.
+            </p>
+          </div>
+
+          <div className="mt-8 pt-4">
+            <Link href="/projects" className="block">
+              <Button
+                variant="accent"
+                size="lg"
+                fullWidth
+                className="bg-white hover:bg-[#FAF9F6] text-[#0F172A] border-white/80 shadow-xs font-semibold"
+              >
+                <span>Join Project</span>
+                <ArrowRight className="w-4 h-4 ml-1.5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

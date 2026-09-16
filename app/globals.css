@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-plus-jakarta-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --color-canvas: #FAF9F6;
+  --color-canvas-subtle: #F0F4F8;
+  --color-card: #FFFFFF;
+  --color-navy: #0F172A;
+  --color-navy-muted: #475569;
+
+  --color-pastel-blue: #D4E6F1;
+  --color-pastel-blue-light: #E8F1F5;
+  --color-pastel-blue-dark: #0B3B4B;
+  --color-pastel-primary: #7CA5B8;
+
+  --color-pastel-lavender: #EDE9FE;
+  --color-pastel-lavender-light: #F5F3FF;
+  --color-pastel-lavender-dark: #3F1E8C;
+  --color-pastel-secondary: #A78BFA;
+
+  --color-pastel-pink: #FCE7F3;
+  --color-pastel-pink-light: #FDF2F8;
+  --color-pastel-pink-dark: #831843;
+  --color-pastel-tertiary: #F472B6;
+
+  --color-pastel-yellow: #FEF9C3;
+  --color-pastel-yellow-dark: #713F12;
+
+  --color-pastel-green: #DCFCE7;
+  --color-pastel-green-dark: #14532D;
+
+  --color-border-soft: #E2E8F0;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAF9F6;
+  --foreground: #0F172A;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FAF9F6;
+  color: #0F172A;
+  font-family: var(--font-plus-jakarta-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
