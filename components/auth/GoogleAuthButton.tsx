@@ -26,13 +26,23 @@ export function GoogleAuthButton({ onError, className = '' }: GoogleAuthButtonPr
       if (error) {
         setLoading(false);
         if (onError) {
-          onError(error.message);
+          if (
+            error.message.includes('provider is not enabled') ||
+            error.message.includes('Unsupported provider')
+          ) {
+            onError(
+              'Google sign-in is not enabled in your Supabase project yet. Please enable Google under Authentication > Providers in the Supabase Dashboard, or sign in with your email.'
+            );
+          } else {
+            onError(error.message);
+          }
         }
       }
     } catch (err: unknown) {
       setLoading(false);
       if (onError) {
-        const message = err instanceof Error ? err.message : 'Failed to initialize Google login';
+        const message =
+          err instanceof Error ? err.message : 'Failed to initialize Google login';
         onError(message);
       }
     }
