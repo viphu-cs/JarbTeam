@@ -1,16 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from '@/i18n/routing';
 import { ConversationListItem, DirectConversationSummary } from '@/types';
 import { formatConversationTime } from '@/lib/utils/format';
 import { getInitials } from '@/lib/supabase/storage';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { Search, MessageSquare, Compass, Users } from 'lucide-react';
+import { Search, MessageSquare, Compass, Users, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { FriendsModal } from '@/components/friends/FriendsModal';
+import { getFriendRequestsAction } from '@/actions/friends';
+import { createClient } from '@/lib/supabase/client';
 
-// Flexible item shape that works with both ConversationListItem and legacy DirectConversationSummary
 export type AnyConversationSummary = ConversationListItem | DirectConversationSummary;
 
 function normalizeConversationItem(item: AnyConversationSummary): ConversationListItem {
@@ -34,6 +36,8 @@ function normalizeConversationItem(item: AnyConversationSummary): ConversationLi
     last_message_sender_name: null,
     last_message_created_at: direct.last_message_created_at,
     unread_count: direct.unread_count,
+    relationship_type: 'none',
+    relationship_label: null,
   };
 }
 
@@ -52,6 +56,38 @@ export function ConversationList({
   const locale = useLocale();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'direct' | 'project'>('all');
+  const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+
+  // Load pending friend requests count & subscribe to realtime changes
+  useEffect(() => {
+    const fetchPending = async () => {
+      const res = await getFriendRequestsAction();
+      setPendingRequestsCount(res.pendingCount || 0);
+    };
+
+    fetchPending();
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel('friendships_realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'friendships',
+        },
+        () => {
+          fetchPending();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const normalizedList = rawConversations.map(normalizeConversationItem);
 
@@ -70,7 +106,8 @@ export function ConversationList({
         c.title.toLowerCase().includes(q) ||
         (c.subtitle && c.subtitle.toLowerCase().includes(q)) ||
         (c.last_message_content && c.last_message_content.toLowerCase().includes(q)) ||
-        (c.last_message_sender_name && c.last_message_sender_name.toLowerCase().includes(q))
+        (c.last_message_sender_name && c.last_message_sender_name.toLowerCase().includes(q)) ||
+        (c.relationship_label && c.relationship_label.toLowerCase().includes(q))
       );
     });
 
@@ -78,13 +115,31 @@ export function ConversationList({
     <div className="flex flex-col h-full bg-white border-r border-[#E2E8F0]">
       {/* Header & Tabs */}
       <div className="p-3.5 sm:p-4 border-b border-[#F1F5F9] shrink-0 space-y-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">
-            {t('title')}
-          </h1>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#E8F1F5] text-[#0B3B4B]">
-            {normalizedList.length}
-          </span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold tracking-tight text-[#0F172A]">
+              {t('title')}
+            </h1>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E8F1F5] text-[#0B3B4B]">
+              {normalizedList.length}
+            </span>
+          </div>
+
+          {/* Find & Manage Friends button */}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsFriendsModalOpen(true)}
+            className="text-xs h-8 px-2.5 cursor-pointer relative shrink-0 text-[#0B3B4B] hover:bg-[#E8F1F5]"
+          >
+            <UserPlus className="w-3.5 h-3.5 mr-1 text-[#0B3B4B]" />
+            <span>{t('findFriends')}</span>
+            {pendingRequestsCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#F43F5E] text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
+                {pendingRequestsCount}
+              </span>
+            )}
+          </Button>
         </div>
 
         {/* Filter Tabs */}
@@ -225,7 +280,7 @@ export function ConversationList({
                 {/* Details */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1 mb-0.5">
-                    <div className="flex items-center gap-1.5 min-w-0">
+                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
                       <h3
                         className={`text-sm truncate leading-tight ${
                           hasUnread
@@ -235,11 +290,23 @@ export function ConversationList({
                       >
                         {conv.title}
                       </h3>
-                      {isProject && (
+
+                      {/* Relationship badges */}
+                      {isProject ? (
                         <span className="text-[10px] font-semibold text-[#0B3B4B] bg-[#E8F1F5] px-1.5 py-0.2 rounded-sm shrink-0">
                           {t('projects')}
                         </span>
-                      )}
+                      ) : conv.relationship_type === 'teammate' ? (
+                        <span className="text-[10px] font-semibold text-[#0369A1] bg-[#E0F2FE] border border-[#BAE6FD] px-1.5 py-0.2 rounded-sm shrink-0 truncate max-w-[140px]">
+                          {conv.relationship_label
+                            ? t('teammateBadge', { project: conv.relationship_label })
+                            : 'Teammate'}
+                        </span>
+                      ) : conv.relationship_type === 'friend' ? (
+                        <span className="text-[10px] font-semibold text-[#15803D] bg-[#DCFCE7] border border-[#BBF7D0] px-1.5 py-0.2 rounded-sm shrink-0">
+                          {t('friendBadge')}
+                        </span>
+                      ) : null}
                     </div>
 
                     <span
@@ -283,15 +350,32 @@ export function ConversationList({
             <p className="text-xs text-[#64748B] mt-1 mb-4 max-w-xs leading-relaxed">
               {t('noConversationsDesc')}
             </p>
-            <Link href="/projects">
-              <Button variant="primary" size="sm" className="cursor-pointer">
-                <Compass className="w-3.5 h-3.5 mr-1.5" />
-                {t('findTeammates')}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setIsFriendsModalOpen(true)}
+                className="cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5 mr-1.5" />
+                {t('findFriends')}
               </Button>
-            </Link>
+              <Link href="/projects">
+                <Button variant="secondary" size="sm" className="cursor-pointer">
+                  <Compass className="w-3.5 h-3.5 mr-1.5" />
+                  {t('findTeammates')}
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Friends Modal */}
+      <FriendsModal
+        isOpen={isFriendsModalOpen}
+        onClose={() => setIsFriendsModalOpen(false)}
+      />
     </div>
   );
 }

@@ -338,6 +338,41 @@
     "startProjectConversationDesc": "ร่วมมือ แบ่งปันความคืบหน้า และประสานงานกับเพื่อนร่วมทีมได้ที่นี่",
     "projectLead": "หัวหน้าโปรเจกต์",
     "member": "สมาชิก",
-    "you": "คุณ"
+    "you": "คุณ",
+    "teammateBadge": "เพื่อนร่วมทีม • {project}",
+    "friendBadge": "เพื่อน",
+    "findFriends": "ค้นหาเพื่อน",
+    "manageFriends": "จัดการเพื่อน"
+  },
+
+  "friends": {
+    "modalTitle": "ค้นหาและจัดการเพื่อน",
+    "searchTab": "ค้นหาเพื่อนใหม่",
+    "requestsTab": "คำขอเป็นเพื่อน",
+    "myFriendsTab": "เพื่อนของฉัน",
+    "searchPlaceholder": "ค้นหาจากชื่อนักศึกษา, มหาวิทยาลัย, สาขาวิชา หรือทักษะ...",
+    "addFriend": "เพิ่มเพื่อน",
+    "pendingSent": "ส่งคำขอแล้ว",
+    "pendingReceived": "รอตอบรับ",
+    "friends": "เป็นเพื่อนกันแล้ว",
+    "message": "ส่งข้อความ",
+    "incomingRequests": "คำขอที่ได้รับ ({count})",
+    "outgoingRequests": "คำขอที่ส่งไป ({count})",
+    "noIncomingRequests": "ไม่มีคำขอเป็นเพื่อนที่รอการตอบรับ",
+    "noIncomingRequestsDesc": "เมื่อมีนักศึกษาคนอื่นส่งคำขอเป็นเพื่อนถึงคุณ จะแสดงที่นี่",
+    "noOutgoingRequests": "ไม่มีคำขอที่กำลังรอการตอบรับ",
+    "noOutgoingRequestsDesc": "ค้นหาเพื่อนร่วมชั้นหรือผู้ร่วมโปรเจกต์แล้วส่งคำขอเป็นเพื่อนได้เลย",
+    "accept": "ยอมรับ",
+    "decline": "ปฏิเสธ",
+    "cancel": "ยกเลิกคำขอ",
+    "noFriendsYet": "ยังไม่มีรายชื่อเพื่อน",
+    "noFriendsYetDesc": "ค้นหาเพื่อนนักศึกษาและเชื่อมต่อเพื่อเริ่มพูดคุยและสร้างทีมร่วมกัน",
+    "noSearchResults": "ไม่พบรายชื่อนักศึกษา",
+    "noSearchResultsDesc": "ลองค้นหาด้วยชื่อ มหาวิทยาลัย หรือทักษะอื่น",
+    "requestSentSuccess": "ส่งคำขอเป็นเพื่อนเรียบร้อยแล้ว!",
+    "requestAcceptedSuccess": "ยอมรับคำขอเป็นเพื่อนแล้ว! คุณสามารถเริ่มแชทได้ทันที",
+    "requestDeclinedSuccess": "ปฏิเสธคำขอเป็นเพื่อนแล้ว",
+    "requestCancelledSuccess": "ยกเลิกคำขอเป็นเพื่อนแล้ว",
+    "isTeammate": "เพื่อนร่วมทีม"
   }
 }

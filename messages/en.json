@@ -338,6 +338,41 @@
     "startProjectConversationDesc": "Collaborate, share updates, and coordinate tasks with your project teammates here.",
     "projectLead": "Project Lead",
     "member": "Member",
-    "you": "You"
+    "you": "You",
+    "teammateBadge": "Teammate • {project}",
+    "friendBadge": "Friend",
+    "findFriends": "Find Friends",
+    "manageFriends": "Friends"
+  },
+
+  "friends": {
+    "modalTitle": "Find & Manage Friends",
+    "searchTab": "Search Students",
+    "requestsTab": "Requests",
+    "myFriendsTab": "My Friends",
+    "searchPlaceholder": "Search by student name, university, major, or skills...",
+    "addFriend": "Add Friend",
+    "pendingSent": "Requested",
+    "pendingReceived": "Needs Response",
+    "friends": "Friends",
+    "message": "Message",
+    "incomingRequests": "Incoming Requests ({count})",
+    "outgoingRequests": "Sent Requests ({count})",
+    "noIncomingRequests": "No incoming friend requests",
+    "noIncomingRequestsDesc": "When other students send you a friend request, it will appear here.",
+    "noOutgoingRequests": "No pending sent requests",
+    "noOutgoingRequestsDesc": "Search for teammates or classmates and send them a friend request.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel",
+    "noFriendsYet": "No friends added yet",
+    "noFriendsYetDesc": "Find other students and connect with them to chat and collaborate.",
+    "noSearchResults": "No students found",
+    "noSearchResultsDesc": "Try searching with a different name, university, or skill.",
+    "requestSentSuccess": "Friend request sent!",
+    "requestAcceptedSuccess": "Friend request accepted! You can now chat directly.",
+    "requestDeclinedSuccess": "Friend request declined.",
+    "requestCancelledSuccess": "Friend request cancelled.",
+    "isTeammate": "Teammate"
   }
 }

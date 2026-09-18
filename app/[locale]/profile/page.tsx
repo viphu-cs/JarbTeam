@@ -5,6 +5,9 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { MessageUserButton } from '@/components/profile/MessageUserButton';
+import { AddFriendButton } from '@/components/friends/AddFriendButton';
+import { getFriendshipStatusAction } from '@/actions/friends';
+import { StudentFriendshipStatus } from '@/types';
 import {
   GraduationCap,
   MapPin,
@@ -81,6 +84,16 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     .select('id, name, project_type, status, team_size')
     .eq('owner_id', profileUserId);
 
+  // 5. Fetch friendship status if viewing another user's profile
+  let friendshipStatus: StudentFriendshipStatus = 'none';
+  let friendshipId: string | undefined = undefined;
+
+  if (!isOwnProfile) {
+    const friendRes = await getFriendshipStatusAction(profileUserId);
+    friendshipStatus = friendRes.status;
+    friendshipId = friendRes.friendshipId;
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-6">
       {/* Top Banner Card */}
@@ -138,7 +151,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               </Button>
             </Link>
           ) : (
-            <MessageUserButton targetUserId={profileUserId} />
+            <div className="flex flex-wrap items-center gap-2">
+              <AddFriendButton
+                targetUserId={profileUserId}
+                initialStatus={friendshipStatus}
+                friendshipId={friendshipId}
+              />
+              <MessageUserButton targetUserId={profileUserId} />
+            </div>
           )}
         </div>
 

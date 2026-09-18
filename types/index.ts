@@ -178,7 +178,61 @@ export interface ConversationListItem {
   last_message_sender_name?: string | null;
   last_message_created_at?: string | null;
   unread_count: number;
+  relationship_type?: 'teammate' | 'friend' | 'project' | 'none';
+  relationship_label?: string | null;
 }
+
+// ==============================================================================
+// Friendship Types
+// ==============================================================================
+
+export type FriendshipStatus = 'pending' | 'accepted' | 'declined';
+
+export interface Friendship {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  status: FriendshipStatus;
+  created_at: string;
+  updated_at: string;
+  sender?: Profile;
+  receiver?: Profile;
+}
+
+export type StudentFriendshipStatus = 'none' | 'pending_sent' | 'pending_received' | 'friends';
+
+export interface StudentSearchResult {
+  id: string;
+  full_name: string;
+  university?: string | null;
+  major?: string | null;
+  avatar_url?: string | null;
+  friendship_status: StudentFriendshipStatus;
+  friendship_id?: string | null;
+  is_teammate: boolean;
+  skills: string[];
+}
+
+export interface FriendItem {
+  friendship_id: string;
+  friend_id: string;
+  full_name: string;
+  university?: string | null;
+  major?: string | null;
+  avatar_url?: string | null;
+  skills: string[];
+  created_at: string;
+}
+
+export interface FriendRequestItem {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  created_at: string;
+  profile: Profile & { skills?: string[] };
+  type: 'incoming' | 'outgoing';
+}
+
 
 
 
