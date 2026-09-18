@@ -6,6 +6,7 @@
     "createProject": "Create Project",
     "myProjects": "My Projects",
     "requests": "Join Requests",
+    "messages": "Messages",
     "profile": "Profile",
     "login": "Log In",
     "signup": "Sign Up",
@@ -295,5 +296,34 @@
     "projectImageHelper": "Add an optional cover image for your project",
     "changePhoto": "Change Photo",
     "removePhoto": "Remove Photo"
+  },
+
+  "chat": {
+    "title": "Messages",
+    "directChat": "Direct Chat",
+    "searchPlaceholder": "Search teammates...",
+    "noConversations": "No conversations yet",
+    "noConversationsDesc": "You don't have any messages yet. Start a conversation to team up with other students.",
+    "findTeammates": "Find teammates",
+    "startConversation": "Start the conversation",
+    "startConversationDesc": "Say hello, introduce yourself, or discuss project ideas.",
+    "typeMessage": "Type a message...",
+    "send": "Send",
+    "sending": "Sending...",
+    "back": "Back",
+    "selectConversation": "Select a conversation to start chatting",
+    "selectConversationDesc": "Choose a conversation from the list on the left to read and send messages.",
+    "messageButton": "Message",
+    "cannotMessageSelf": "Cannot message yourself",
+    "unauthorized": "Please log in to use chat",
+    "noAccess": "You don't have access to this conversation",
+    "noAccessDesc": "You are not a member of this conversation.",
+    "conversationNotFound": "Conversation not found",
+    "conversationNotFoundDesc": "The conversation you are looking for might have been deleted or does not exist.",
+    "backToMessages": "Back to Messages",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "justNow": "Just now",
+    "errorSending": "Failed to send message. Please try again."
   }
 }

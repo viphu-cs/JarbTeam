@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
+import { redirect, notFound } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { MessageUserButton } from '@/components/profile/MessageUserButton';
 import {
   GraduationCap,
   MapPin,
@@ -19,7 +20,12 @@ import { getProjectTypeLabel, getWorkStyleLabel, getStatusLabel } from '@/lib/ut
 import Image from 'next/image';
 import { getInitials } from '@/lib/supabase/storage';
 
-export default async function ProfilePage() {
+interface ProfilePageProps {
+  searchParams: Promise<{ id?: string }>;
+}
+
+export default async function ProfilePage({ searchParams }: ProfilePageProps) {
+  const { id: queryUserId } = await searchParams;
   const t = await getTranslations('profile');
   const tCommon = await getTranslations('common');
   const locale = await getLocale();
@@ -33,18 +39,25 @@ export default async function ProfilePage() {
     redirect(`/${locale}/login`);
   }
 
+  const profileUserId = queryUserId || user.id;
+  const isOwnProfile = profileUserId === user.id;
+
   // 1. Fetch Profile
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.id)
+    .eq('id', profileUserId)
     .single();
+
+  if (!profile) {
+    notFound();
+  }
 
   // 2. Fetch user's skills
   const { data: userSkillsData } = await supabase
     .from('profile_skills')
     .select('skills (id, name)')
-    .eq('profile_id', user.id);
+    .eq('profile_id', profileUserId);
 
   const rawSkills = (userSkillsData || []) as unknown as Array<{ skills: { id: string; name: string } | null }>;
   const skills: string[] = rawSkills
@@ -55,7 +68,7 @@ export default async function ProfilePage() {
   const { data: userInterestsData } = await supabase
     .from('profile_interests')
     .select('interests (id, name)')
-    .eq('profile_id', user.id);
+    .eq('profile_id', profileUserId);
 
   const rawInterests = (userInterestsData || []) as unknown as Array<{ interests: { id: string; name: string } | null }>;
   const interests: string[] = rawInterests
@@ -66,7 +79,7 @@ export default async function ProfilePage() {
   const { data: ownedProjects } = await supabase
     .from('projects')
     .select('id, name, project_type, status, team_size')
-    .eq('owner_id', user.id);
+    .eq('owner_id', profileUserId);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-6">
@@ -117,12 +130,16 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <Link href="/profile/edit">
-            <Button variant="secondary" size="sm" className="shadow-xs cursor-pointer">
-              <Edit3 className="w-3.5 h-3.5" />
-              {t('editProfile')}
-            </Button>
-          </Link>
+          {isOwnProfile ? (
+            <Link href="/profile/edit">
+              <Button variant="secondary" size="sm" className="shadow-xs cursor-pointer">
+                <Edit3 className="w-3.5 h-3.5" />
+                {t('editProfile')}
+              </Button>
+            </Link>
+          ) : (
+            <MessageUserButton targetUserId={profileUserId} />
+          )}
         </div>
 
         {/* Bio */}

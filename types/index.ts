@@ -145,3 +145,20 @@ export interface Message {
   sender?: Profile;
 }
 
+export interface DirectConversationSummary {
+  conversation_id: string;
+  created_at: string;
+  updated_at: string;
+  other_user_id: string;
+  other_user_name: string;
+  other_user_avatar?: string | null;
+  other_user_university?: string | null;
+  other_user_major?: string | null;
+  last_message_id?: string | null;
+  last_message_content?: string | null;
+  last_message_sender_id?: string | null;
+  last_message_created_at?: string | null;
+  unread_count: number;
+}
+
+

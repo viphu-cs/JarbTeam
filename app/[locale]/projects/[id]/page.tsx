@@ -224,7 +224,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             </h1>
 
             {project.owner && (
-              <div className="flex items-center gap-2 pt-1">
+              <Link
+                href={`/profile?id=${project.owner_id}`}
+                className="inline-flex items-center gap-2 pt-1 group"
+              >
                 <div className="relative w-6 h-6 rounded-full overflow-hidden bg-[#D4E6F1] text-[#0B3B4B] flex items-center justify-center font-bold text-[10px] border border-[#BEE3F8] shrink-0 shadow-xs">
                   {project.owner.avatar_url ? (
                     <Image
@@ -238,8 +241,8 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                     <span>{getInitials(project.owner.full_name)}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-[#64748B]">
-                  <span className="font-medium text-[#0F172A]">
+                <div className="flex items-center gap-1.5 text-xs text-[#64748B] group-hover:text-[#0F172A] transition-colors">
+                  <span className="font-medium text-[#0F172A] group-hover:underline">
                     {project.owner.full_name}
                   </span>
                   {project.owner.university && (
@@ -252,7 +255,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                     </>
                   )}
                 </div>
-              </div>
+              </Link>
             )}
           </div>
 
@@ -451,8 +454,11 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               key={member.id}
               className="py-3 flex items-center justify-between gap-4"
             >
-              <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-[#D4E6F1] text-[#0B3B4B] flex items-center justify-center font-bold text-xs border-2 border-[#BEE3F8] shrink-0 shadow-xs">
+              <Link
+                href={`/profile?id=${member.profile_id}`}
+                className="flex items-center gap-3 group"
+              >
+                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-[#D4E6F1] text-[#0B3B4B] flex items-center justify-center font-bold text-xs border-2 border-[#BEE3F8] shrink-0 shadow-xs group-hover:scale-105 transition-transform">
                   {member.profile?.avatar_url ? (
                     <Image
                       src={member.profile.avatar_url}
@@ -466,7 +472,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                   )}
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-[#0F172A]">
+                  <h4 className="text-sm font-semibold text-[#0F172A] group-hover:text-[#3b6475] transition-colors">
                     {member.profile?.full_name || 'Anonymous Student'}
                   </h4>
                   <div className="flex items-center gap-2 text-xs text-[#64748B]">
@@ -478,7 +484,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                     )}
                   </div>
                 </div>
-              </div>
+              </Link>
 
               <Badge
                 variant={

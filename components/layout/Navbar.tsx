@@ -1,7 +1,7 @@
 import { Link } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { signOutAction } from '@/actions/auth';
-import { Users, PlusCircle, Compass, FolderKanban, Inbox, UserCircle } from 'lucide-react';
+import { Users, PlusCircle, Compass, FolderKanban, Inbox, UserCircle, MessageSquare } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import Image from 'next/image';
@@ -15,6 +15,8 @@ export async function Navbar() {
   } = await supabase.auth.getUser();
 
   let profile = null;
+  let hasUnreadMessages = false;
+
   if (user) {
     const { data } = await supabase
       .from('profiles')
@@ -22,6 +24,9 @@ export async function Navbar() {
       .eq('id', user.id)
       .single();
     profile = data;
+
+    const { data: unreadCount } = await supabase.rpc('get_unread_message_count');
+    hasUnreadMessages = Number(unreadCount || 0) > 0;
   }
 
   return (
@@ -69,6 +74,18 @@ export async function Navbar() {
               >
                 <Inbox className="w-4 h-4 text-[#F472B6]" />
                 {t('requests')}
+              </Link>
+              <Link
+                href="/messages"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#475569] hover:text-[#0F172A] hover:bg-[#F0F4F8] rounded-xl transition-all relative"
+              >
+                <div className="relative">
+                  <MessageSquare className="w-4 h-4 text-[#818CF8]" />
+                  {hasUnreadMessages && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#F43F5E] ring-1.5 ring-white" />
+                  )}
+                </div>
+                <span>{t('messages')}</span>
               </Link>
             </>
           )}

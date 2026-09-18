@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { Conversation, Message, AttachmentType } from '@/types';
+import { Conversation, Message, AttachmentType, DirectConversationSummary, Profile } from '@/types';
 
 /**
  * Get or create a 1-to-1 direct conversation between the authenticated user and another user.
@@ -223,3 +223,150 @@ export async function markConversationAsReadAction(
 
   return { success: true };
 }
+
+/**
+ * Fetch all direct conversations for current user with other user profile and last message preview.
+ */
+export async function getUserDirectConversationsAction(): Promise<{
+  conversations?: DirectConversationSummary[];
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'Unauthorized: Please log in first.' };
+  }
+
+  const { data, error } = await supabase.rpc('get_user_direct_conversations');
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { conversations: (data as unknown as DirectConversationSummary[]) || [] };
+}
+
+/**
+ * Get total unread direct message count for the current user.
+ */
+export async function getUnreadMessageCountAction(): Promise<{
+  count: number;
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { count: 0 };
+  }
+
+  const { data, error } = await supabase.rpc('get_unread_message_count');
+
+  if (error) {
+    return { count: 0, error: error.message };
+  }
+
+  return { count: Number(data || 0) };
+}
+
+/**
+ * Get details of a single direct conversation: verify membership, get other user profile and initial messages.
+ */
+export async function getDirectConversationDetailsAction(
+  conversationId: string
+): Promise<{
+  conversation?: Conversation;
+  otherUser?: Profile;
+  currentUser?: Profile;
+  messages?: Message[];
+  error?: string;
+  forbidden?: boolean;
+  notFound?: boolean;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'Unauthorized', forbidden: true };
+  }
+
+  // 1. Fetch current user's profile
+  const { data: currentProfile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  // 2. Fetch conversation with members and their profiles
+  const { data: conversationData, error: convError } = await supabase
+    .from('conversations')
+    .select(`
+      *,
+      members:conversation_members (
+        id,
+        user_id,
+        joined_at,
+        last_read_at,
+        profile:profiles (*)
+      )
+    `)
+    .eq('id', conversationId)
+    .single();
+
+  if (convError || !conversationData) {
+    return { notFound: true, error: 'Conversation not found.' };
+  }
+
+  // Verify conversation is direct
+  if (conversationData.type !== 'direct') {
+    return { error: 'Not a direct conversation.', notFound: true };
+  }
+
+  // 3. Verify user membership
+  const members = (conversationData.members || []) as unknown as Array<{
+    user_id: string;
+    profile: Profile;
+  }>;
+
+  const isMember = members.some((m) => m.user_id === user.id);
+  if (!isMember) {
+    return { forbidden: true, error: 'Access denied: You are not a member of this conversation.' };
+  }
+
+  // 4. Find other user's profile
+  const otherMember = members.find((m) => m.user_id !== user.id);
+  const otherUser = otherMember?.profile;
+
+  // 5. Fetch initial messages
+  const { data: messagesData } = await supabase
+    .from('messages')
+    .select(`
+      *,
+      sender:profiles (*)
+    `)
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true })
+    .limit(100);
+
+  // 6. Mark conversation as read
+  await supabase
+    .from('conversation_members')
+    .update({ last_read_at: new Date().toISOString() })
+    .eq('conversation_id', conversationId)
+    .eq('user_id', user.id);
+
+  return {
+    conversation: conversationData as unknown as Conversation,
+    otherUser,
+    currentUser: currentProfile as Profile,
+    messages: (messagesData as unknown as Message[]) || [],
+  };
+}
+
