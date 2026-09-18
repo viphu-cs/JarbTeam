@@ -214,10 +214,7 @@ export function ConversationList({
             );
 
             // Construct link URL
-            const itemHref =
-              isProject && conv.project_id
-                ? `/projects/${conv.project_id}/chat`
-                : `/messages/${conv.conversation_id}`;
+            const itemHref = `/messages/${conv.conversation_id}`;
 
             // Build preview text: if group chat, prefix with sender's first name
             let previewText = t('startConversation');

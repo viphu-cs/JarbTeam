@@ -7,6 +7,7 @@ import {
 } from '@/actions/chat';
 import { ChatLayout } from '@/components/chat/ChatLayout';
 import { DirectChatRoom } from '@/components/chat/DirectChatRoom';
+import { ProjectChatRoom } from '@/components/chat/ProjectChatRoom';
 import { ShieldAlert, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { Button } from '@/components/ui/Button';
@@ -38,11 +39,6 @@ export default async function DirectConversationPage({
 
   // Fetch details & initial messages for the selected conversation
   const details = await getDirectConversationDetailsAction(conversationId);
-
-  // If this conversation is actually a project conversation, redirect to project chat route
-  if (details.conversationType === 'project' && details.projectId) {
-    redirect(`/${locale}/projects/${details.projectId}/chat`);
-  }
 
   // Handle unauthorized/forbidden state
   if (details.forbidden) {
@@ -90,6 +86,26 @@ export default async function DirectConversationPage({
             </Button>
           </Link>
         </div>
+      </ChatLayout>
+    );
+  }
+
+  if (details.conversationType === 'project' && details.project && details.conversation) {
+    return (
+      <ChatLayout
+        conversations={conversations}
+        activeConversationId={conversationId}
+        activeProjectId={details.projectId || undefined}
+      >
+        <ProjectChatRoom
+          conversationId={details.conversation.id}
+          initialMessages={details.messages || []}
+          currentUserId={user.id}
+          currentUser={details.currentUser}
+          project={details.project}
+          members={details.members || []}
+          backHref="/messages"
+        />
       </ChatLayout>
     );
   }

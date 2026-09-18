@@ -322,6 +322,12 @@ export async function getDirectConversationDetailsAction(
   notFound?: boolean;
   projectId?: string | null;
   conversationType?: 'direct' | 'project';
+  project?: Project;
+  members?: Array<{
+    user_id: string;
+    role: string;
+    profile: Profile;
+  }>;
 }> {
   const supabase = await createClient();
   const {
@@ -359,13 +365,20 @@ export async function getDirectConversationDetailsAction(
     return { notFound: true, error: 'Conversation not found.' };
   }
 
-  // If this conversation is a project conversation, return the projectId so the caller can redirect
-  if (conversationData.type !== 'direct') {
+  // If this conversation is a project conversation, load project conversation details
+  if (conversationData.type === 'project' && conversationData.project_id) {
+    const projDetails = await getProjectConversationDetailsAction(conversationData.project_id);
     return {
-      error: 'Not a direct conversation.',
-      notFound: false,
-      projectId: conversationData.project_id,
+      conversation: projDetails.conversation,
+      project: projDetails.project,
+      members: projDetails.members,
+      currentUser: projDetails.currentUser,
+      messages: projDetails.messages,
       conversationType: 'project',
+      projectId: conversationData.project_id,
+      forbidden: projDetails.forbidden,
+      notFound: projDetails.notFound,
+      error: projDetails.error,
     };
   }
 

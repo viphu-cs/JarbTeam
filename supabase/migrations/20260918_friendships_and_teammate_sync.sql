@@ -282,6 +282,7 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
+#variable_conflict use_column
 DECLARE
     v_user_id UUID := auth.uid();
     r_teammate RECORD;
@@ -307,14 +308,14 @@ BEGIN
     FROM public.conversations c
     JOIN public.projects p ON p.id = c.project_id
     WHERE c.type = 'project'
-    ON CONFLICT (conversation_id, user_id) DO NOTHING;
+    ON CONFLICT ON CONSTRAINT uq_conversation_members_conversation_user DO NOTHING;
 
     INSERT INTO public.conversation_members (conversation_id, user_id)
     SELECT c.id, pm.profile_id
     FROM public.conversations c
     JOIN public.project_members pm ON pm.project_id = c.project_id
     WHERE c.type = 'project' AND pm.status = 'active'
-    ON CONFLICT (conversation_id, user_id) DO NOTHING;
+    ON CONFLICT ON CONSTRAINT uq_conversation_members_conversation_user DO NOTHING;
 
     -- 2. AUTO-PROVISION 1-to-1 DIRECT CHATS FOR ALL TEAMMATES IN SHARED PROJECTS
     FOR r_teammate IN (
@@ -370,7 +371,7 @@ BEGIN
         SELECT
             cm.conversation_id AS c_id,
             COUNT(cm.id)::BIGINT AS member_count,
-            MAX(CASE WHEN cm.user_id <> v_user_id THEN cm.user_id ELSE NULL END) AS other_id
+            MAX((CASE WHEN cm.user_id <> v_user_id THEN cm.user_id ELSE NULL END)::TEXT)::UUID AS other_id
         FROM public.conversation_members cm
         JOIN my_convs mc ON mc.c_id = cm.conversation_id
         GROUP BY cm.conversation_id
