@@ -1,12 +1,20 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from './lib/supabase/middleware';
 
 const intlMiddleware = createMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+
+  // If request contains an OAuth 'code' but landed outside /auth/callback (e.g. at root '/'),
+  // forward it to /auth/callback so the authorization code is properly exchanged for a session.
+  if (searchParams.has('code') && !pathname.startsWith('/auth/callback')) {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = '/auth/callback';
+    return NextResponse.redirect(callbackUrl);
+  }
 
   // Bypass next-intl locale prefixing for OAuth callback route
   if (pathname.startsWith('/auth/callback') || pathname.startsWith('/api')) {

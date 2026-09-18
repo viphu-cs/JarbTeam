@@ -9,8 +9,11 @@ export async function GET(request: NextRequest) {
 
   // Support both localhost and deployed domain (Vercel / proxies)
   const forwardedHost = request.headers.get('x-forwarded-host');
-  const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
-  const baseUrl = isLocal ? origin : forwardedHost ? `https://${forwardedHost}` : origin;
+  const forwardedProto = request.headers.get('x-forwarded-proto') || (origin.startsWith('https') ? 'https' : 'http');
+  const host = forwardedHost || origin;
+  const isLocalHost = host.includes('localhost') || host.includes('127.0.0.1');
+  const proto = isLocalHost ? 'http' : (forwardedProto || 'https');
+  const baseUrl = forwardedHost ? `${proto}://${forwardedHost}` : origin;
 
   // Determine locale from cookie or fallback to default 'th'
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
@@ -50,11 +53,11 @@ export async function GET(request: NextRequest) {
 
       // If profile does not exist: redirect to /[locale]/profile/edit?onboarding=true
       if (!profile) {
-        return NextResponse.redirect(`${baseUrl}/${locale}/profile/edit?onboarding=true`);
+        return NextResponse.redirect(new URL(`/${locale}/profile/edit?onboarding=true`, baseUrl));
       }
 
       // If profile already exists: redirect to /[locale]
-      return NextResponse.redirect(`${baseUrl}/${locale}`);
+      return NextResponse.redirect(new URL(`/${locale}`, baseUrl));
     }
   }
 
