@@ -1,7 +1,15 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { Conversation, Message, AttachmentType, DirectConversationSummary, Profile } from '@/types';
+import {
+  Conversation,
+  Message,
+  AttachmentType,
+  DirectConversationSummary,
+  ConversationListItem,
+  Profile,
+  Project,
+} from '@/types';
 
 /**
  * Get or create a 1-to-1 direct conversation between the authenticated user and another user.
@@ -190,7 +198,7 @@ export async function getUserConversationsAction(): Promise<{
 
   const raw = data || [];
   const conversations: Conversation[] = raw
-    .map((item) => (item as unknown as { conversation: Conversation }).conversation)
+    .map((item: any) => (item as unknown as { conversation: Conversation }).conversation)
     .filter(Boolean);
 
   return { conversations };
@@ -275,6 +283,31 @@ export async function getUnreadMessageCountAction(): Promise<{
 }
 
 /**
+ * Fetch all conversations (both direct and project) for the current authenticated user.
+ */
+export async function getAllUserConversationsAction(): Promise<{
+  conversations?: ConversationListItem[];
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'Unauthorized: Please log in first.' };
+  }
+
+  const { data, error } = await supabase.rpc('get_user_all_conversations');
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { conversations: (data as unknown as ConversationListItem[]) || [] };
+}
+
+/**
  * Get details of a single direct conversation: verify membership, get other user profile and initial messages.
  */
 export async function getDirectConversationDetailsAction(
@@ -287,6 +320,8 @@ export async function getDirectConversationDetailsAction(
   error?: string;
   forbidden?: boolean;
   notFound?: boolean;
+  projectId?: string | null;
+  conversationType?: 'direct' | 'project';
 }> {
   const supabase = await createClient();
   const {
@@ -324,9 +359,14 @@ export async function getDirectConversationDetailsAction(
     return { notFound: true, error: 'Conversation not found.' };
   }
 
-  // Verify conversation is direct
+  // If this conversation is a project conversation, return the projectId so the caller can redirect
   if (conversationData.type !== 'direct') {
-    return { error: 'Not a direct conversation.', notFound: true };
+    return {
+      error: 'Not a direct conversation.',
+      notFound: false,
+      projectId: conversationData.project_id,
+      conversationType: 'project',
+    };
   }
 
   // 3. Verify user membership
@@ -367,6 +407,170 @@ export async function getDirectConversationDetailsAction(
     otherUser,
     currentUser: currentProfile as Profile,
     messages: (messagesData as unknown as Message[]) || [],
+    conversationType: 'direct',
   };
 }
+
+/**
+ * Get details of a project group conversation:
+ * - Ensure project conversation exists (auto-created via rpc)
+ * - Verify user is owner or active member of the project
+ * - Fetch project details, members with profiles, and message history
+ * - Mark conversation as read
+ */
+export async function getProjectConversationDetailsAction(
+  projectId: string
+): Promise<{
+  conversation?: Conversation;
+  project?: Project;
+  members?: Array<{
+    user_id: string;
+    role: string;
+    profile: Profile;
+  }>;
+  currentUser?: Profile;
+  messages?: Message[];
+  isOwner?: boolean;
+  error?: string;
+  forbidden?: boolean;
+  notFound?: boolean;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'Unauthorized', forbidden: true };
+  }
+
+  // 1. Fetch current user profile
+  const { data: currentProfile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  // 2. Fetch project details with owner and active members
+  const { data: projectData, error: projError } = await supabase
+    .from('projects')
+    .select(`
+      *,
+      owner:profiles!projects_owner_id_fkey (*),
+      project_members (
+        id,
+        project_id,
+        profile_id,
+        role,
+        joined_at,
+        status,
+        profile:profiles (*)
+      )
+    `)
+    .eq('id', projectId)
+    .single();
+
+  if (projError || !projectData) {
+    return { notFound: true, error: 'Project not found.' };
+  }
+
+  const isOwner = user.id === projectData.owner_id;
+  const rawMembers = (projectData.project_members || []) as Array<{
+    id: string;
+    project_id: string;
+    profile_id: string;
+    role: string;
+    joined_at: string;
+    status: string;
+    profile: Profile;
+  }>;
+
+  const activeMembers = rawMembers.filter((m) => m.status === 'active');
+  const isMember = isOwner || activeMembers.some((m) => m.profile_id === user.id);
+
+  if (!isMember) {
+    return {
+      forbidden: true,
+      error: 'Access denied: You must be a project member to join this chat.',
+    };
+  }
+
+  // 3. Ensure project conversation exists and members are synced
+  const { data: convId, error: convRpcError } = await supabase.rpc(
+    'get_or_create_project_conversation',
+    {
+      p_project_id: projectId,
+    }
+  );
+
+  if (convRpcError || !convId) {
+    return { error: convRpcError?.message || 'Failed to initialize project conversation.' };
+  }
+
+  // 4. Fetch conversation record
+  const { data: conversationData, error: convError } = await supabase
+    .from('conversations')
+    .select('*')
+    .eq('id', convId)
+    .single();
+
+  if (convError || !conversationData) {
+    return { notFound: true, error: 'Conversation record not found.' };
+  }
+
+  // 5. Fetch recent messages
+  const { data: messagesData } = await supabase
+    .from('messages')
+    .select(`
+      *,
+      sender:profiles (*)
+    `)
+    .eq('conversation_id', convId)
+    .order('created_at', { ascending: true })
+    .limit(100);
+
+  // 6. Mark conversation as read for current user
+  await supabase
+    .from('conversation_members')
+    .update({ last_read_at: new Date().toISOString() })
+    .eq('conversation_id', convId)
+    .eq('user_id', user.id);
+
+  // Build unified member list (Project Lead + active members)
+  const unifiedMembers: Array<{
+    user_id: string;
+    role: string;
+    profile: Profile;
+  }> = [];
+
+  // Add owner first
+  if (projectData.owner) {
+    unifiedMembers.push({
+      user_id: projectData.owner_id,
+      role: 'Project Lead',
+      profile: projectData.owner as Profile,
+    });
+  }
+
+  // Add active members (excluding owner if already added)
+  for (const m of activeMembers) {
+    if (m.profile_id !== projectData.owner_id && m.profile) {
+      unifiedMembers.push({
+        user_id: m.profile_id,
+        role: m.role || 'Member',
+        profile: m.profile,
+      });
+    }
+  }
+
+  return {
+    conversation: conversationData as unknown as Conversation,
+    project: projectData as unknown as Project,
+    members: unifiedMembers,
+    currentUser: currentProfile as Profile,
+    messages: (messagesData as unknown as Message[]) || [],
+    isOwner,
+  };
+}
+
 

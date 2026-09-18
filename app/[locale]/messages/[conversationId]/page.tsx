@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 import {
-  getUserDirectConversationsAction,
+  getAllUserConversationsAction,
   getDirectConversationDetailsAction,
 } from '@/actions/chat';
 import { ChatLayout } from '@/components/chat/ChatLayout';
@@ -34,12 +34,17 @@ export default async function DirectConversationPage({
   }
 
   // Fetch list of conversations for sidebar
-  const { conversations = [] } = await getUserDirectConversationsAction();
+  const { conversations = [] } = await getAllUserConversationsAction();
 
   // Fetch details & initial messages for the selected conversation
   const details = await getDirectConversationDetailsAction(conversationId);
 
-  // Handle unauthorized/forbidden state (Requirement 6)
+  // If this conversation is actually a project conversation, redirect to project chat route
+  if (details.conversationType === 'project' && details.projectId) {
+    redirect(`/${locale}/projects/${details.projectId}/chat`);
+  }
+
+  // Handle unauthorized/forbidden state
   if (details.forbidden) {
     return (
       <ChatLayout conversations={conversations} activeConversationId={conversationId}>

@@ -10,9 +10,19 @@ interface MessageListProps {
   messages: Array<Message & { isOptimistic?: boolean }>;
   currentUserId: string;
   otherUser?: Profile;
+  isGroupChat?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
-export function MessageList({ messages, currentUserId, otherUser }: MessageListProps) {
+export function MessageList({
+  messages,
+  currentUserId,
+  otherUser,
+  isGroupChat = false,
+  emptyTitle,
+  emptyDescription,
+}: MessageListProps) {
   const t = useTranslations('chat');
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -50,15 +60,20 @@ export function MessageList({ messages, currentUserId, otherUser }: MessageListP
           <MessageSquare className="w-7 h-7 text-[#7CA5B8]" />
         </div>
         <h3 className="text-base font-bold text-[#0F172A]">
-          {t('startConversation')}
+          {emptyTitle || (isGroupChat ? t('startProjectConversation') : t('startConversation'))}
         </h3>
         <p className="text-xs text-[#64748B] max-w-xs mt-1.5 leading-relaxed">
-          {t('startConversationDesc')}
+          {emptyDescription ||
+            (isGroupChat
+              ? t('startProjectConversationDesc')
+              : t('startConversationDesc'))}
         </p>
-        <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E2E8F0] text-xs font-medium text-[#475569] shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
-          <span>{otherUser?.full_name || 'Student'}</span>
-        </div>
+        {!isGroupChat && otherUser && (
+          <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E2E8F0] text-xs font-medium text-[#475569] shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+            <span>{otherUser.full_name || 'Student'}</span>
+          </div>
+        )}
       </div>
     );
   }
@@ -75,6 +90,7 @@ export function MessageList({ messages, currentUserId, otherUser }: MessageListP
             key={message.id}
             message={message}
             isCurrentUser={isCurrentUser}
+            showSenderInfo={isGroupChat}
           />
         );
       })}
@@ -82,3 +98,4 @@ export function MessageList({ messages, currentUserId, otherUser }: MessageListP
     </div>
   );
 }
+

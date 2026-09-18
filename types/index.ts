@@ -161,4 +161,24 @@ export interface DirectConversationSummary {
   unread_count: number;
 }
 
+export interface ConversationListItem {
+  conversation_id: string;
+  type: ConversationType;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  subtitle?: string | null;
+  avatar_url?: string | null;
+  project_id?: string | null;
+  other_user_id?: string | null;
+  member_count: number;
+  last_message_id?: string | null;
+  last_message_content?: string | null;
+  last_message_sender_id?: string | null;
+  last_message_sender_name?: string | null;
+  last_message_created_at?: string | null;
+  unread_count: number;
+}
+
+
 

@@ -1,21 +1,22 @@
 'use client';
 
 import React from 'react';
-import { DirectConversationSummary } from '@/types';
-import { ConversationList } from './ConversationList';
+import { ConversationList, AnyConversationSummary } from './ConversationList';
 
 interface ChatLayoutProps {
-  conversations: DirectConversationSummary[];
+  conversations: AnyConversationSummary[];
   activeConversationId?: string;
+  activeProjectId?: string;
   children: React.ReactNode;
 }
 
 export function ChatLayout({
   conversations,
   activeConversationId,
+  activeProjectId,
   children,
 }: ChatLayoutProps) {
-  const hasActiveConversation = Boolean(activeConversationId);
+  const hasActiveConversation = Boolean(activeConversationId || activeProjectId);
 
   return (
     <div className="max-w-6xl mx-auto h-[calc(100dvh-4rem)] sm:h-[calc(100vh-5.5rem)] sm:my-4 sm:px-4 flex flex-col">
@@ -29,6 +30,7 @@ export function ChatLayout({
           <ConversationList
             conversations={conversations}
             activeConversationId={activeConversationId}
+            activeProjectId={activeProjectId}
           />
         </div>
 

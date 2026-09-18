@@ -23,6 +23,7 @@ import {
   ArrowLeft,
   GraduationCap,
   Inbox,
+  MessageSquare,
 } from 'lucide-react';
 
 export const revalidate = 0;
@@ -262,16 +263,32 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           {/* Action CTA depending on user state */}
           <div className="shrink-0">
             {isOwner ? (
-              <Link href="/join-requests">
-                <Button variant="accent" size="sm" className="shadow-xs cursor-pointer">
-                  <Inbox className="w-4 h-4 mr-1.5" />
-                  {tDetail('manageRequests')}
-                </Button>
-              </Link>
+              <div className="flex flex-wrap items-center gap-2">
+                <Link href={`/projects/${project.id}/chat`}>
+                  <Button variant="primary" size="sm" className="shadow-xs cursor-pointer">
+                    <MessageSquare className="w-4 h-4 mr-1.5" />
+                    {tDetail('projectChat')}
+                  </Button>
+                </Link>
+                <Link href="/join-requests">
+                  <Button variant="accent" size="sm" className="shadow-xs cursor-pointer">
+                    <Inbox className="w-4 h-4 mr-1.5" />
+                    {tDetail('manageRequests')}
+                  </Button>
+                </Link>
+              </div>
             ) : isMember ? (
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#DCFCE7] text-[#14532D] text-xs font-semibold border border-[#BBF7D0]">
-                <CheckCircle2 className="w-4 h-4" />
-                {tDetail('youAreOnTeam')}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#DCFCE7] text-[#14532D] text-xs font-semibold border border-[#BBF7D0]">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {tDetail('youAreOnTeam')}
+                </div>
+                <Link href={`/projects/${project.id}/chat`}>
+                  <Button variant="primary" size="sm" className="shadow-xs cursor-pointer">
+                    <MessageSquare className="w-4 h-4 mr-1.5" />
+                    {tDetail('projectChat')}
+                  </Button>
+                </Link>
               </div>
             ) : hasPendingRequest ? (
               <div className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#FEF9C3] text-[#713F12] text-xs font-semibold border border-[#FEF08A]">

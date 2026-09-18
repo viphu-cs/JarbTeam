@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getLocale } from 'next-intl/server';
-import { getUserDirectConversationsAction } from '@/actions/chat';
+import { getAllUserConversationsAction } from '@/actions/chat';
 import { ChatLayout } from '@/components/chat/ChatLayout';
 import { EmptyChatPlaceholder } from '@/components/chat/EmptyChatPlaceholder';
 
@@ -18,7 +18,7 @@ export default async function MessagesPage() {
     redirect(`/${locale}/login?redirectedFrom=/${locale}/messages`);
   }
 
-  const { conversations = [] } = await getUserDirectConversationsAction();
+  const { conversations = [] } = await getAllUserConversationsAction();
 
   return (
     <ChatLayout conversations={conversations}>

@@ -143,6 +143,7 @@
     "teamRoster": "Team Members",
     "leadRole": "Project Lead",
     "memberRole": "Member",
+    "projectChat": "Project Chat",
     "requestDialog": {
       "title": "Request to Join \"{name}\"",
       "subtitle": "Introduce yourself to the project owner.",
@@ -324,6 +325,19 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "justNow": "Just now",
-    "errorSending": "Failed to send message. Please try again."
+    "errorSending": "Failed to send message. Please try again.",
+    "projectChat": "Project Chat",
+    "projectMembers": "Project Members",
+    "viewProject": "View Project",
+    "all": "All",
+    "direct": "Direct",
+    "projects": "Projects",
+    "membersCount": "{count} members",
+    "notProjectMember": "You are not a member of this project.",
+    "startProjectConversation": "Welcome to the project team chat!",
+    "startProjectConversationDesc": "Collaborate, share updates, and coordinate tasks with your project teammates here.",
+    "projectLead": "Project Lead",
+    "member": "Member",
+    "you": "You"
   }
 }
