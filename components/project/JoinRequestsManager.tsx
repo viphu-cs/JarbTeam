@@ -23,6 +23,8 @@ import {
 import { JoinRequest } from '@/types';
 import { useTranslations } from 'next-intl';
 import { getProjectTypeLabel, getStatusLabel } from '@/lib/utils/labels';
+import Image from 'next/image';
+import { getInitials } from '@/lib/supabase/storage';
 
 interface JoinRequestsManagerProps {
   incomingRequests: JoinRequest[];
@@ -116,8 +118,18 @@ export function JoinRequestsManager({
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F1F5F9]">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#EDE9FE] text-[#3F1E8C] flex items-center justify-center font-bold text-sm border border-[#E0E7FF] shrink-0">
-                      {req.profile?.full_name?.charAt(0) || 'A'}
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-[#EDE9FE] text-[#3F1E8C] flex items-center justify-center font-bold text-xs border-2 border-[#E0E7FF] shrink-0 shadow-xs">
+                      {req.profile?.avatar_url ? (
+                        <Image
+                          src={req.profile.avatar_url}
+                          alt={req.profile?.full_name || 'Applicant'}
+                          fill
+                          className="object-cover rounded-full"
+                          sizes="40px"
+                        />
+                      ) : (
+                        <span>{getInitials(req.profile?.full_name)}</span>
+                      )}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">

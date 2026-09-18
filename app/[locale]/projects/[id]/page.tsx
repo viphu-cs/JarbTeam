@@ -12,6 +12,7 @@ import { formatDate } from '@/lib/utils/format';
 import { getProjectTypeLabel, getWorkStyleLabel, getStatusLabel } from '@/lib/utils/labels';
 import Image from 'next/image';
 import { ProjectPlaceholder } from '@/components/project/ProjectPlaceholder';
+import { getInitials } from '@/lib/supabase/storage';
 import {
   Users,
   Calendar,
@@ -132,7 +133,22 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
     .map((ps) => ps.skills)
     .filter((s): s is { id: string; name: string } => Boolean(s));
 
-  const members: ProjectMember[] = (projectData.project_members as unknown as ProjectMember[]) || [];
+  const rawMembers = (projectData.project_members as unknown as ProjectMember[]) || [];
+  const hasOwnerInMembers = rawMembers.some((m) => m.profile_id === projectData.owner_id);
+  const members: ProjectMember[] = hasOwnerInMembers
+    ? rawMembers
+    : [
+        {
+          id: `owner-${projectData.owner_id}`,
+          project_id: projectData.id,
+          profile_id: projectData.owner_id,
+          role: 'Project Lead',
+          joined_at: projectData.created_at,
+          status: 'active',
+          profile: projectData.owner,
+        },
+        ...rawMembers,
+      ];
 
   const project: Project = {
     ...projectData,
@@ -206,6 +222,38 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
               {project.name}
             </h1>
+
+            {project.owner && (
+              <div className="flex items-center gap-2 pt-1">
+                <div className="relative w-6 h-6 rounded-full overflow-hidden bg-[#D4E6F1] text-[#0B3B4B] flex items-center justify-center font-bold text-[10px] border border-[#BEE3F8] shrink-0 shadow-xs">
+                  {project.owner.avatar_url ? (
+                    <Image
+                      src={project.owner.avatar_url}
+                      alt={project.owner.full_name || 'Project Lead'}
+                      fill
+                      className="object-cover rounded-full"
+                      sizes="24px"
+                    />
+                  ) : (
+                    <span>{getInitials(project.owner.full_name)}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-[#64748B]">
+                  <span className="font-medium text-[#0F172A]">
+                    {project.owner.full_name}
+                  </span>
+                  {project.owner.university && (
+                    <>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <GraduationCap className="w-3 h-3 text-[#7CA5B8]" />
+                        {project.owner.university}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Action CTA depending on user state */}
@@ -404,8 +452,18 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               className="py-3 flex items-center justify-between gap-4"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-[#E8F1F5] text-[#0B3B4B] flex items-center justify-center font-bold text-xs border border-[#D4E6F1]">
-                  {member.profile?.full_name?.charAt(0) || 'M'}
+                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-[#D4E6F1] text-[#0B3B4B] flex items-center justify-center font-bold text-xs border-2 border-[#BEE3F8] shrink-0 shadow-xs">
+                  {member.profile?.avatar_url ? (
+                    <Image
+                      src={member.profile.avatar_url}
+                      alt={member.profile?.full_name || 'Member'}
+                      fill
+                      className="object-cover rounded-full"
+                      sizes="40px"
+                    />
+                  ) : (
+                    <span>{getInitials(member.profile?.full_name)}</span>
+                  )}
                 </div>
                 <div>
                   <h4 className="text-sm font-semibold text-[#0F172A]">
