@@ -1,7 +1,7 @@
 import { Link } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
 import { signOutAction } from '@/actions/auth';
-import { Users, PlusCircle, Compass, FolderKanban, Inbox, UserCircle, MessageSquare } from 'lucide-react';
+import { PlusCircle, Compass, FolderKanban, Inbox, UserCircle, MessageSquare } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import Image from 'next/image';
@@ -33,11 +33,8 @@ export async function Navbar() {
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm border-b border-[#E2E8F0]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-2xl bg-[#D4E6F1] flex items-center justify-center text-[#0B3B4B] border border-[#BEE3F8] group-hover:bg-[#BEE3F8] transition-colors">
-            <Users className="w-5 h-5 text-[#0B3B4B]" />
-          </div>
-          <span className="font-bold text-lg text-[#0F172A] tracking-tight">
+        <Link href="/" className="flex items-center group">
+          <span className="font-bold text-xl text-[#0F172A] tracking-tight hover:opacity-90 transition-opacity">
             Jarb<span className="text-[#3b6475]">Team</span>
           </span>
         </Link>
