@@ -5,7 +5,6 @@ import {
   FolderPlus,
   Compass,
   ArrowRight,
-  GraduationCap,
 } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
@@ -25,11 +24,6 @@ export default async function HomePage() {
     <div className="min-h-[calc(100vh-8rem)] flex flex-col justify-center max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-20">
       {/* Minimal Academic Hero */}
       <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-4">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8F1F5] text-[#0B3B4B] border border-[#D4E6F1] text-xs font-semibold">
-          <GraduationCap className="w-3.5 h-3.5 text-[#3b6475]" />
-          <span>{t('badge')}</span>
-        </div>
-
         <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-bold text-[#0F172A] leading-snug sm:leading-tight">
           {t('titleLine1')}
           <br />
