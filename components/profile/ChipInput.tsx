@@ -55,7 +55,7 @@ export function ChipInput({
   return (
     <div className="space-y-2 text-left">
       <div>
-        <label className="block text-xs font-semibold text-[#0F172A] tracking-wide">
+        <label className="block text-xs font-medium text-[#0F172A] tracking-wide">
           {label}
         </label>
         {helperText && (

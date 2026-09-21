@@ -118,7 +118,7 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
         />
 
         <div>
-          <label className="block text-xs font-semibold text-[#0F172A] mb-2 tracking-wide">
+          <label className="block text-xs font-medium text-[#0F172A] mb-2 tracking-wide">
             {t('typeLabel')}
           </label>
           <div className="flex flex-wrap gap-2">
@@ -198,7 +198,7 @@ export function CreateProjectForm({ availableSkills }: CreateProjectFormProps) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-[#0F172A] mb-2 tracking-wide">
+          <label className="block text-xs font-medium text-[#0F172A] mb-2 tracking-wide">
             {t('workStyleLabel')}
           </label>
           <div className="grid grid-cols-3 gap-3">

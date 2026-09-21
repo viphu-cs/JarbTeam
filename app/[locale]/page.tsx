@@ -30,7 +30,7 @@ export default async function HomePage() {
           <span>{t('badge')}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A] leading-[1.15]">
+        <h1 className="text-3xl sm:text-5xl font-bold text-[#0F172A] leading-snug sm:leading-tight">
           {t('titleLine1')}
           <br />
           <span className="text-[#3b6475]">{t('titleLine2')}</span>

@@ -184,7 +184,7 @@ export function ProfileEditForm({
         />
 
         <div>
-          <label className="block text-xs font-semibold text-[#0F172A] mb-2 tracking-wide">
+          <label className="block text-xs font-medium text-[#0F172A] mb-2 tracking-wide">
             {t('workStyle')}
           </label>
           <div className="grid grid-cols-3 gap-3">
@@ -245,7 +245,7 @@ export function ProfileEditForm({
         />
 
         <div>
-          <label className="block text-xs font-semibold text-[#0F172A] mb-2 tracking-wide">
+          <label className="block text-xs font-medium text-[#0F172A] mb-2 tracking-wide">
             {t('typesLabel')}
           </label>
           <div className="flex flex-wrap gap-2">

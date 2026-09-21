@@ -95,7 +95,7 @@ export function ProjectImageUpload({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-semibold text-[#0F172A] tracking-wide">
+        <label className="block text-xs font-medium text-[#0F172A] tracking-wide">
           {t('projectImage')}
         </label>
         <span className="text-[11px] text-[#64748B]">
