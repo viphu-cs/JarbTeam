@@ -6,6 +6,7 @@ import { getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import Image from 'next/image';
 import { getInitials } from '@/lib/supabase/storage';
+import { MobileNav } from '@/components/layout/MobileNav';
 
 export async function Navbar() {
   const t = await getTranslations('common');
@@ -88,8 +89,8 @@ export async function Navbar() {
           )}
         </nav>
 
-        {/* User / Auth Actions & Language Switcher */}
-        <div className="flex items-center gap-2.5">
+        {/* Desktop User / Auth Actions & Language Switcher */}
+        <div className="hidden md:flex items-center gap-2.5">
           <LanguageSwitcher />
 
           {user ? (
@@ -145,6 +146,13 @@ export async function Navbar() {
             </div>
           )}
         </div>
+
+        {/* Mobile Navigation */}
+        <MobileNav
+          user={Boolean(user)}
+          profile={profile}
+          hasUnreadMessages={hasUnreadMessages}
+        />
       </div>
     </header>
   );
