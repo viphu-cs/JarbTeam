@@ -43,7 +43,13 @@
     },
     "footer": {
       "copyright": "JarbTeam สร้างขึ้นสำหรับการทำงานร่วมกันของนักศึกษามหาวิทยาลัย",
-      "tagline": "ค้นหาโปรเจกต์ที่ใช่ แล้วสร้างมันไปกับคนที่ใช่"
+      "tagline": "ค้นหาโปรเจกต์ที่ใช่ แล้วสร้างมันไปกับคนที่ใช่",
+      "home": "หน้าแรก",
+      "projects": "โปรเจกต์",
+      "about": "เกี่ยวกับเรา",
+      "contact": "ติดต่อเรา",
+      "aboutModalTitle": "เกี่ยวกับ JarbTeam",
+      "aboutModalDesc": "JarbTeam แพลตฟอร์มค้นหาเพื่อนร่วมทีมระดับมหาวิทยาลัย เพื่อการเรียนรู้ การแข่งขัน และนวัตกรรม"
     }
   },
 
@@ -60,7 +66,28 @@
     "joinTag": "ร่วมมือกัน",
     "joinTitle": "เข้าร่วมโปรเจกต์",
     "joinDesc": "สำรวจโปรเจกต์ต่างๆ และค้นหาทีมที่ตรงกับความสนใจของคุณ",
-    "joinButton": "เข้าร่วมโปรเจกต์"
+    "joinButton": "เข้าร่วมโปรเจกต์",
+    "openProjectsTitle": "โปรเจกต์ที่กำลังเปิดรับสมาชิก",
+    "openProjectsSubtitle": "ลองดูโปรเจกต์ที่กำลังมองหาเพื่อนร่วมทีม",
+    "viewAllProjects": "ดูโปรเจกต์ทั้งหมด →",
+    "positions": "{count} ตำแหน่ง",
+    "viewProject": "ดูโปรเจกต์",
+    "noOpenProjects": "ยังไม่มีโปรเจกต์ที่เปิดรับในขณะนี้",
+    "howItWorksTitle": "เริ่มต้นกับ JarbTeam",
+    "step1Title": "สร้างโปรเจกต์",
+    "step1Desc": "สร้างโปรเจกต์และระบุทักษะที่ต้องการ",
+    "step2Title": "ค้นหาโปรเจกต์",
+    "step2Desc": "เลือกโปรเจกต์ที่สนใจและดูรายละเอียด",
+    "step3Title": "ร่วมทีม",
+    "step3Desc": "ส่งคำขอและเริ่มทำงานร่วมกับทีม",
+    "userActivityTitle": "กิจกรรมของคุณ",
+    "myProjects": "โปรเจกต์ของฉัน",
+    "projectsCount": "{count} โปรเจกต์",
+    "joinRequests": "คำขอเข้าร่วม",
+    "pendingRequestsCount": "{count} รอพิจารณา",
+    "invitations": "คำเชิญ",
+    "newInvitationsCount": "{count} รายการใหม่",
+    "noNewInvitations": "ไม่มีคำขอใหม่"
   },
 
   "auth": {

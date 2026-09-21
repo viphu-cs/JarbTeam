@@ -43,7 +43,13 @@
     },
     "footer": {
       "copyright": "JarbTeam. Built for university student collaboration.",
-      "tagline": "Find your next project. Build it with the right people."
+      "tagline": "Find your next project. Build it with the right people.",
+      "home": "Home",
+      "projects": "Projects",
+      "about": "About",
+      "contact": "Contact",
+      "aboutModalTitle": "About JarbTeam",
+      "aboutModalDesc": "JarbTeam is a university student collaboration platform to connect peers by skills, interests, and roles for capstones, hackathons, and startups."
     }
   },
 
@@ -60,7 +66,28 @@
     "joinTag": "Collaborate",
     "joinTitle": "Join Project",
     "joinDesc": "Explore projects and find a team that matches your interests.",
-    "joinButton": "Join Project"
+    "joinButton": "Join Project",
+    "openProjectsTitle": "Open Projects",
+    "openProjectsSubtitle": "Explore projects actively looking for teammates",
+    "viewAllProjects": "View all projects →",
+    "positions": "{count, plural, =1 {1 position} other {# positions}}",
+    "viewProject": "View Project",
+    "noOpenProjects": "No open projects currently available.",
+    "howItWorksTitle": "How JarbTeam Works",
+    "step1Title": "Create Project",
+    "step1Desc": "Create your project and specify needed skills",
+    "step2Title": "Explore Projects",
+    "step2Desc": "Browse open projects and review details",
+    "step3Title": "Join the Team",
+    "step3Desc": "Send a request and start building together",
+    "userActivityTitle": "Your Activity",
+    "myProjects": "My Projects",
+    "projectsCount": "{count, plural, =1 {1 Project} other {# Projects}}",
+    "joinRequests": "Join Requests",
+    "pendingRequestsCount": "{count} Pending",
+    "invitations": "Invitations",
+    "newInvitationsCount": "{count} New",
+    "noNewInvitations": "None new"
   },
 
   "auth": {
