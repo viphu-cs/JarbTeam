@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Bai_Jamjuree, Plus_Jakarta_Sans } from "next/font/google";
 import "@/app/globals.css";
 import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -61,7 +60,6 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <Navbar />
           <main className="flex-1">{children}</main>
-          <Footer />
         </NextIntlClientProvider>
       </body>
     </html>
